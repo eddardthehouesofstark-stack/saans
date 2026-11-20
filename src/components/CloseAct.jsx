@@ -31,13 +31,13 @@ export default function CloseAct({ ledger }) {
           <p className="max-w-xl font-display text-[clamp(1.7rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em]">
             Stop watching the AQI.
             <br />
-            <span className="text-ink/45">Start spending it.</span>
+            <span className="text-ink/70">Start spending it.</span>
           </p>
 
           <div className="flex flex-wrap items-end gap-8 md:justify-end">
             <div>
               <p className="micro">This morning</p>
-              <p className="mt-2 font-display text-3xl text-ink/45 tabular-nums">
+              <p className="mt-2 font-display text-3xl text-ink/70 tabular-nums">
                 {formatCigs(ledger.budget)}
               </p>
             </div>
@@ -49,7 +49,7 @@ export default function CloseAct({ ledger }) {
               <p className="mt-2 font-display text-[clamp(2.4rem,5vw,3.6rem)] leading-none text-amber tabular-nums">
                 <AnimatedNumber value={ledger.net} decimals={1} />
               </p>
-              <p className="mt-1 font-grotesk text-[9px] uppercase tracking-[0.18em] text-green">
+              <p className="mt-1 font-grotesk text-[10px] uppercase tracking-[0.18em] text-green">
                 {ledger.savings > 0.05 ? `${formatCigs(ledger.savings)} 🚬 bought back` : 'no swaps yet'}
               </p>
             </div>
@@ -65,13 +65,13 @@ export default function CloseAct({ ledger }) {
               Your daily lung budget
             </span>
           </div>
-          <div className="flex flex-wrap gap-x-8 gap-y-2 font-grotesk text-[10px] uppercase tracking-[0.14em] text-mute/70">
+          <div className="flex flex-wrap gap-x-8 gap-y-2 font-grotesk text-[10px] uppercase tracking-[0.14em] text-mute/85">
             <span>Built at PromptWars</span>
             <span>Air · Open-Meteo</span>
             <span>Equivalence · Berkeley Earth 22 µg/m³</span>
           </div>
         </div>
-        <p className="mt-6 max-w-2xl text-[10px] leading-relaxed text-mute/40">
+        <p className="mt-6 max-w-2xl text-[10px] leading-relaxed text-mute/85">
           SAANS is an awareness tool, not a medical device. Cigarette-equivalence is a communication
           device, not a diagnosis. If the air is bad, reduce exposure — and push for cleaner air.
         </p>

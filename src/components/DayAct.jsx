@@ -23,7 +23,7 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
           <p className="max-w-[220px] font-grotesk text-[11px] leading-relaxed text-mute">
             {demo ? 'Demo budget · 285 µg/m³' : `Live budget · ${pm25} µg/m³`}
             <br />
-            <span className="text-ink/50">Values update with the hour.</span>
+            <span className="text-ink/70">Values update with the hour.</span>
           </p>
         </div>
 
@@ -42,11 +42,11 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
                   </span>
                 </div>
                 {demo ? (
-                  <span className="border border-amber/40 px-1.5 py-0.5 font-grotesk text-[8px] uppercase tracking-[0.2em] text-amber">
+                  <span className="border border-amber/40 px-1.5 py-0.5 font-grotesk text-[10px] uppercase tracking-[0.2em] text-amber">
                     demo
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1.5 font-grotesk text-[8px] uppercase tracking-[0.2em] text-green">
+                  <span className="flex items-center gap-1.5 font-grotesk text-[10px] uppercase tracking-[0.2em] text-green">
                     <span className="h-1 w-1 rounded-full bg-green" /> live
                   </span>
                 )}
@@ -66,17 +66,17 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
 
               <dl className="grid grid-cols-3 divide-x divide-white/[0.07] border-t border-white/[0.07]">
                 <div className="px-4 py-4">
-                  <dt className="micro text-[9px]">PM2.5</dt>
+                  <dt className="micro text-[10px]">PM2.5</dt>
                   <dd className="mt-1.5 font-grotesk text-xl text-ink">{pm25}</dd>
                 </div>
                 <div className="px-4 py-4">
-                  <dt className="micro text-[9px]">Band</dt>
+                  <dt className="micro text-[10px]">Band</dt>
                   <dd className="mt-2 font-grotesk text-xs" style={{ color: band.color }}>
                     {band.label}
                   </dd>
                 </div>
                 <div className="px-4 py-4">
-                  <dt className="micro text-[9px]">{usAqi ? 'US AQI' : 'Coords'}</dt>
+                  <dt className="micro text-[10px]">{usAqi ? 'US AQI' : 'Coords'}</dt>
                   <dd className="mt-1.5 font-grotesk text-xs text-ink/70">
                     {usAqi ?? `${coords.lat.toFixed(2)}, ${coords.lon.toFixed(2)}`}
                   </dd>
@@ -99,7 +99,7 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
                   <span className="text-ink/80">0.6</span> = indoor infiltration; 22 µg/m³/day = 1 🚬.
                 </p>
               </div>
-              <p className="mt-4 border-t border-white/[0.07] pt-3 text-[10px] leading-relaxed text-mute/70">
+              <p className="mt-4 border-t border-white/[0.07] pt-3 text-[10px] leading-relaxed text-mute/85">
                 No account, no tracking. Your location is used once to fetch air quality and never stored.
               </p>
             </div>
@@ -110,7 +110,7 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
             <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-6">
               <div>
                 <p className="micro">The ledger</p>
-                <p className="mt-1 font-grotesk text-[11px] text-ink/45">Five daily activities · per person</p>
+                <p className="mt-1 font-grotesk text-[11px] text-ink/70">Five daily activities · per person</p>
               </div>
               <span className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">🚬 / day</span>
             </div>
@@ -130,12 +130,12 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <p className="font-grotesk text-sm text-ink">{row.name}</p>
                       {row.swapped ? (
-                        <span className="border border-green/30 bg-green/[0.06] px-1.5 py-0.5 font-grotesk text-[8px] uppercase tracking-[0.16em] text-green">
+                        <span className="border border-green/30 bg-green/[0.06] px-1.5 py-0.5 font-grotesk text-[10px] uppercase tracking-[0.16em] text-green">
                           swapped
                         </span>
                       ) : null}
                       {row.protected ? (
-                        <span className="border border-white/10 px-1.5 py-0.5 font-grotesk text-[8px] uppercase tracking-[0.16em] text-mute">
+                        <span className="border border-white/10 px-1.5 py-0.5 font-grotesk text-[10px] uppercase tracking-[0.16em] text-mute">
                           protected
                         </span>
                       ) : null}
@@ -155,11 +155,11 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
                       <span className="ml-1 text-[11px] text-mute">🚬</span>
                     </p>
                     {row.saved > 0.05 ? (
-                      <p className="mt-0.5 font-grotesk text-[10px] text-mute/70">
+                      <p className="mt-0.5 font-grotesk text-[10px] text-mute/85">
                         was {formatCigs(row.base)}
                       </p>
                     ) : (
-                      <p className="mt-0.5 font-grotesk text-[10px] text-mute/50">{row.tag.split(' · ')[0]}</p>
+                      <p className="mt-0.5 font-grotesk text-[10px] text-mute/85">{row.tag.split(' · ')[0]}</p>
                     )}
                   </div>
                 </motion.div>
@@ -178,7 +178,7 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
                     />
                     <span className="text-xl">🚬</span>
                     {ledger.savings > 0.05 ? (
-                      <span className="font-grotesk text-[11px] text-mute/70 line-through">
+                      <span className="font-grotesk text-[11px] text-mute/85 line-through">
                         {formatCigs(ledger.budget)}
                       </span>
                     ) : null}
@@ -189,7 +189,7 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
                   <span aria-hidden="true">↘</span>
                 </a>
               </div>
-              <p className="mt-3 text-[11px] leading-relaxed text-mute/70">
+              <p className="mt-3 text-[11px] leading-relaxed text-mute/85">
                 The five activities above carry{' '}
                 <span className="text-ink/70">{formatCigs(ledger.nowTotal)} 🚬</span> of it. The other{' '}
                 {formatCigs(ledger.background)} is background air — the commute home, the school run, the

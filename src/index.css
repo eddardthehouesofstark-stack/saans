@@ -25,6 +25,11 @@
     color: #0d0f14;
   }
 
+  :focus-visible {
+    outline: 2px solid #e8a33d;
+    outline-offset: 2px;
+  }
+
   input,
   textarea,
   button {
@@ -48,7 +53,7 @@
 
 @layer components {
   .micro {
-    @apply font-grotesk text-[10px] font-medium uppercase tracking-[0.28em] text-mute;
+    @apply font-grotesk text-[11px] font-medium uppercase tracking-[0.24em] text-mute;
   }
 
   .panel {
@@ -160,5 +165,8 @@
   }
   .saans-pin::after {
     animation: none;
+  }
+  .grain {
+    display: none;
   }
 }

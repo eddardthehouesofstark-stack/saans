@@ -98,12 +98,18 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-amber focus:px-4 focus:py-2 focus:font-grotesk focus:text-[11px] focus:uppercase focus:tracking-[0.18em] focus:text-base"
+      >
+        Skip to content
+      </a>
       <Atmosphere clearing={clearing} />
       <Grain />
 
       <Nav pm25={air.pm25} demo={air.demo} onAsk={() => setChatOpen(true)} />
 
-      <main className="relative z-10">
+      <main id="main" tabIndex={-1} className="relative z-10 outline-none">
         <Hero
           pm25={air.pm25}
           budget={ledger.budget}

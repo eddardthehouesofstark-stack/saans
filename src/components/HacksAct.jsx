@@ -64,25 +64,25 @@ export default function HacksAct({ pm25, swaps, hacks, ledger, onToggleHack }) {
                       </span>
                       <h3 className="font-grotesk text-base leading-snug text-ink">{hack.title}</h3>
                     </div>
-                    <span className="shrink-0 border border-white/10 px-2 py-1 font-grotesk text-[9px] uppercase tracking-[0.12em] text-amber">
+                    <span className="shrink-0 border border-white/10 px-2 py-1 font-grotesk text-[10px] uppercase tracking-[0.12em] text-amber">
                       {hack.claim}
                     </span>
                   </div>
 
-                  <p className="mt-3 max-w-lg text-xs leading-relaxed text-ink/50">{hack.copy}</p>
-                  <p className="mt-2 font-grotesk text-[10px] uppercase tracking-[0.12em] text-ink/40">
+                  <p className="mt-3 max-w-lg text-xs leading-relaxed text-ink/70">{hack.copy}</p>
+                  <p className="mt-2 font-grotesk text-[10px] uppercase tracking-[0.12em] text-ink/70">
                     {hack.meta}
                   </p>
 
                   <div className="mt-4 flex flex-wrap items-end justify-between gap-3 border-t border-white/[0.07] pt-3">
                     <div>
-                      <p className="font-grotesk text-[9px] uppercase tracking-[0.18em] text-mute">
+                      <p className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
                         saves
                       </p>
                       <p className="mt-1 font-grotesk text-sm tabular-nums text-green">
                         {formatCigs(gain)} 🚬 / day
                       </p>
-                      <p className="mt-1 font-grotesk text-[9px] leading-relaxed text-mute/70">
+                      <p className="mt-1 font-grotesk text-[10px] leading-relaxed text-mute/85">
                         {hack.source}
                       </p>
                     </div>
@@ -112,25 +112,26 @@ export default function HacksAct({ pm25, swaps, hacks, ledger, onToggleHack }) {
                   <p className="micro">Family mode</p>
                   <h3 className="mt-2 font-display text-2xl leading-tight">The same air, smaller lungs.</h3>
                 </div>
-                <span className="shrink-0 border border-amber/40 px-2 py-1 font-grotesk text-[9px] uppercase tracking-[0.14em] text-amber">
+                <span className="shrink-0 border border-amber/40 px-2 py-1 font-grotesk text-[10px] uppercase tracking-[0.14em] text-amber">
                   1.8× kids
                 </span>
               </div>
 
-              <p className="mt-3 text-xs leading-relaxed text-ink/45">
+              <p className="mt-3 text-xs leading-relaxed text-ink/70">
                 Children breathe more air per kilogram of body weight, so their row is priced at 1.8×.
                 Edit names and ages — the table reprices immediately.
               </p>
 
-              <div className="mt-6 grid grid-cols-[1fr_48px_64px_58px_16px] items-center gap-2 border-b border-white/10 pb-2">
-                <span className="font-grotesk text-[8px] uppercase tracking-[0.18em] text-mute">Name</span>
-                <span className="font-grotesk text-[8px] uppercase tracking-[0.18em] text-mute">Age</span>
-                <span className="text-right font-grotesk text-[8px] uppercase tracking-[0.18em] text-mute">Budget</span>
-                <span className="text-right font-grotesk text-[8px] uppercase tracking-[0.18em] text-mute">Saved</span>
-                <span />
-              </div>
+              <div role="table" aria-label="Family budget by member" className="mt-6">
+                <div role="row" className="grid grid-cols-[1fr_48px_64px_58px_16px] items-center gap-2 border-b border-white/10 pb-2">
+                  <span role="columnheader" className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">Name</span>
+                  <span role="columnheader" className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">Age</span>
+                  <span role="columnheader" className="text-right font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">Budget</span>
+                  <span role="columnheader" className="text-right font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">Saved</span>
+                  <span aria-hidden="true" />
+                </div>
 
-              <div className="divide-y divide-white/[0.06]">
+                <div role="rowgroup" className="divide-y divide-white/[0.06]">
                 <AnimatePresence initial={false}>
                   {family.map((member) => {
                     const weight = weightFor(member.age);
@@ -139,13 +140,14 @@ export default function HacksAct({ pm25, swaps, hacks, ledger, onToggleHack }) {
                     return (
                       <motion.div
                         key={member.id}
+                        role="row"
                         layout
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         className="grid grid-cols-[1fr_48px_64px_58px_16px] items-center gap-2 py-2.5"
                       >
-                        <div className="min-w-0">
+                        <div role="cell" className="min-w-0">
                           <input
                             value={member.name}
                             onChange={(event) => update(member.id, { name: event.target.value })}
@@ -153,48 +155,57 @@ export default function HacksAct({ pm25, swaps, hacks, ledger, onToggleHack }) {
                             className="w-full border-b border-transparent bg-transparent py-0.5 font-grotesk text-xs text-ink focus:border-amber focus:outline-none"
                           />
                           {weight > 1 ? (
-                            <span className="font-grotesk text-[8px] uppercase tracking-[0.12em] text-amber/80">
+                            <span className="font-grotesk text-[10px] uppercase tracking-[0.12em] text-amber/80">
                               child · 1.8×
                             </span>
                           ) : (
-                            <span className="font-grotesk text-[8px] uppercase tracking-[0.12em] text-mute/60">
+                            <span className="font-grotesk text-[10px] uppercase tracking-[0.12em] text-mute/85">
                               adult · 1.0×
                             </span>
                           )}
                         </div>
-                        <input
-                          type="number"
-                          min="1"
-                          max="99"
-                          value={member.age}
-                          onChange={(event) =>
-                            update(member.id, { age: Number(event.target.value) || 0 })
-                          }
-                          aria-label={`${member.name || 'Member'} age`}
-                          className="w-full border-b border-white/10 bg-transparent py-0.5 text-center font-grotesk text-xs tabular-nums text-ink focus:border-amber focus:outline-none"
-                        />
-                        <span className="text-right font-grotesk text-xs tabular-nums text-ink/80">
+                        <div role="cell">
+                          <input
+                            type="number"
+                            min="1"
+                            max="99"
+                            value={member.age}
+                            onChange={(event) =>
+                              update(member.id, { age: Number(event.target.value) || 0 })
+                            }
+                            aria-label={`${member.name || 'Member'} age`}
+                            className="w-full border-b border-white/10 bg-transparent py-0.5 text-center font-grotesk text-xs tabular-nums text-ink focus:border-amber focus:outline-none"
+                          />
+                        </div>
+                        <span
+                          role="cell"
+                          className="text-right font-grotesk text-xs tabular-nums text-ink/80"
+                        >
                           {formatCigs(personBudget)}
                         </span>
                         <span
+                          role="cell"
                           className={`text-right font-grotesk text-xs tabular-nums ${
-                            personSaved > 0.05 ? 'text-green' : 'text-mute/50'
+                            personSaved > 0.05 ? 'text-green' : 'text-mute/85'
                           }`}
                         >
                           {personSaved > 0.05 ? `−${formatCigs(personSaved)}` : '—'}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => removeMember(member.id)}
-                          aria-label={`Remove ${member.name || 'member'}`}
-                          className="text-mute transition-colors hover:text-alarm"
-                        >
-                          ×
-                        </button>
+                        <div role="cell">
+                          <button
+                            type="button"
+                            onClick={() => removeMember(member.id)}
+                            aria-label={`Remove ${member.name || 'member'}`}
+                            className="text-mute transition-colors hover:text-alarm"
+                          >
+                            ×
+                          </button>
+                        </div>
                       </motion.div>
                     );
                   })}
                 </AnimatePresence>
+                </div>
               </div>
 
               <button
@@ -205,13 +216,13 @@ export default function HacksAct({ pm25, swaps, hacks, ledger, onToggleHack }) {
                 + Add a family member
               </button>
 
-              <p className="mt-5 border-t border-white/[0.07] pt-4 text-[10px] leading-relaxed text-mute/65">
+              <p className="mt-5 border-t border-white/[0.07] pt-4 text-[10px] leading-relaxed text-mute/85">
                 Each row prices the same routine for that person; savings scale with their dose. A
                 child at 1.8× pays almost twice what an adult pays for the same afternoon outside.
               </p>
             </div>
 
-            <p className="mt-4 px-1 text-[10px] leading-relaxed text-mute/60">
+            <p className="mt-4 px-1 text-[10px] leading-relaxed text-mute/85">
               Hack savings are applied to the unprotected price of each row, so a swap and an indoor fix
               never double-count the same cigarette.
             </p>

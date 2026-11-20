@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 
 /**
  * Three hand-built skyline layers (far haze, mid city with chimneys and a
@@ -6,10 +6,12 @@ import { motion, useScroll, useTransform } from 'framer-motion';
  */
 export default function Skyline() {
   const { scrollY } = useScroll();
-  const farY = useTransform(scrollY, [0, 1000], [0, 60]);
-  const midY = useTransform(scrollY, [0, 1000], [0, 150]);
-  const nearY = useTransform(scrollY, [0, 1000], [0, 260]);
-  const hazeY = useTransform(scrollY, [0, 1000], [0, 30]);
+  const reduceMotion = useReducedMotion();
+  const speed = (distance) => [0, reduceMotion ? 0 : distance];
+  const farY = useTransform(scrollY, [0, 1000], speed(60));
+  const midY = useTransform(scrollY, [0, 1000], speed(150));
+  const nearY = useTransform(scrollY, [0, 1000], speed(260));
+  const hazeY = useTransform(scrollY, [0, 1000], speed(30));
 
   return (
     <div

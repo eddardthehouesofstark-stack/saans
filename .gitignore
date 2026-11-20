@@ -1,7 +1,10 @@
 node_modules
 dist
 dev.log
+preview.log
 .dev-pid
+.preview-pid
+coverage
 .freebuff
 .env
 .env.*

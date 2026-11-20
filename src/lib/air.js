@@ -9,7 +9,7 @@
  * Every number the UI shows comes from this file. The LLM only narrates.
  */
 
-const CIG_DENOM = 22 * 0.6 * 24; // 316.8
+export const CIG_DENOM = 22 * 0.6 * 24; // 316.8
 export const DEFAULT_PM25 = 285;
 export const DEFAULT_LOCATION = { lat: 28.6139, lon: 77.209, label: 'New Delhi, IN' };
 export const CLEAR_THRESHOLD = 3;

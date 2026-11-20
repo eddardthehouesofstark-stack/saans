@@ -8,12 +8,13 @@ import { CLEAR_THRESHOLD, formatCigs } from '../lib/air';
 export default function SwapAct({ ledger, onToggleSwap }) {
   const [fly, setFly] = useState(null);
   const flyTimer = useRef(null);
+  const flyId = useRef(0);
 
   useEffect(() => () => clearTimeout(flyTimer.current), []);
 
   function handleSwap(key) {
     const delta = onToggleSwap(key);
-    setFly({ key, delta, id: Date.now() });
+    setFly({ key, delta, id: (flyId.current += 1) });
     clearTimeout(flyTimer.current);
     flyTimer.current = setTimeout(() => setFly(null), 1200);
   }
@@ -58,7 +59,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
                           exit={{ opacity: 0, y: -44 }}
                           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                           className={`pointer-events-none absolute right-4 top-3 z-10 font-grotesk text-sm font-medium ${
-                            activeFly.delta >= 0 ? 'text-green' : 'text-ink/60'
+                            activeFly.delta >= 0 ? 'text-green' : 'text-ink/80'
                           }`}
                         >
                           {activeFly.delta >= 0 ? '−' : '+'}
@@ -73,7 +74,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
                         <span aria-hidden="true">{row.emoji}</span>
                         {row.name}
                       </span>
-                      <span className="font-grotesk text-[10px] tabular-nums text-ink/40">
+                      <span className="font-grotesk text-[10px] tabular-nums text-ink/70">
                         {formatCigs(row.now)} now
                       </span>
                     </div>
@@ -81,16 +82,16 @@ export default function SwapAct({ ledger, onToggleSwap }) {
                     <h3 className="mt-4 font-grotesk text-[17px] leading-snug text-ink">
                       {row.swap.title}
                     </h3>
-                    <p className="mt-2 flex-1 text-xs leading-relaxed text-ink/50">
+                    <p className="mt-2 flex-1 text-xs leading-relaxed text-ink/70">
                       {row.swap.detail}
                     </p>
 
                     <div className="mt-4 flex items-center gap-2">
-                      <span className="border border-white/10 px-2 py-1 font-grotesk text-[9px] uppercase tracking-[0.14em] text-mute">
+                      <span className="border border-white/10 px-2 py-1 font-grotesk text-[10px] uppercase tracking-[0.14em] text-mute">
                         {row.swap.tag}
                       </span>
                       {row.swapped ? (
-                        <span className="border border-green/30 px-2 py-1 font-grotesk text-[9px] uppercase tracking-[0.14em] text-green">
+                        <span className="border border-green/30 px-2 py-1 font-grotesk text-[10px] uppercase tracking-[0.14em] text-green">
                           applied
                         </span>
                       ) : null}
@@ -98,7 +99,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
 
                     <div className="mt-5 flex items-end justify-between border-t border-white/[0.07] pt-4">
                       <div>
-                        <p className="font-grotesk text-[9px] uppercase tracking-[0.18em] text-mute">
+                        <p className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
                           saves
                         </p>
                         <p className={`mt-1 font-grotesk text-lg tabular-nums ${row.swapped ? 'text-green' : 'text-ink'}`}>
@@ -126,7 +127,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
               <p className="flex items-center gap-2 font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
                 <span aria-hidden="true">💻</span> Work from home · already protected
               </p>
-              <p className="mt-2 max-w-xl text-xs leading-relaxed text-ink/45">
+              <p className="mt-2 max-w-xl text-xs leading-relaxed text-ink/70">
                 Your nine indoor hours are the cheapest block in the day — 0.6 m³/h behind closed
                 windows. The Corsi–Rosenthal box in act 04 makes them cheaper still.
               </p>
@@ -138,7 +139,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
             <div className="panel p-6">
               <div className="flex items-center justify-between">
                 <p className="micro">Net today</p>
-                <span className="font-grotesk text-[9px] uppercase tracking-[0.18em] text-mute">
+                <span className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
                   live
                 </span>
               </div>
@@ -153,7 +154,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
                   🚬
                 </span>
                 {ledger.savings > 0.05 ? (
-                  <span className="font-grotesk text-sm text-mute/70 line-through">
+                  <span className="font-grotesk text-sm text-mute/85 line-through">
                     {formatCigs(ledger.budget)}
                   </span>
                 ) : null}
@@ -178,7 +179,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
                     transition={{ type: 'spring', stiffness: 90, damping: 20 }}
                   />
                 </div>
-                <p className="mt-2 text-[10px] leading-relaxed text-mute/65">
+                <p className="mt-2 text-[10px] leading-relaxed text-mute/85">
                   {clear
                     ? 'Your choices are buying back the air. Keep stacking swaps and indoor fixes.'
                     : `Another ${formatCigs(toThreshold)} 🚬 and the inversion layer starts to lift.`}
@@ -186,7 +187,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
               </div>
 
               <div className="mt-6 border-t border-white/[0.07] pt-4">
-                <p className="font-grotesk text-[9px] uppercase tracking-[0.18em] text-mute">
+                <p className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
                   Applied today
                 </p>
                 {ledger.rows.some((row) => row.swapped) ? (
@@ -205,14 +206,14 @@ export default function SwapAct({ ledger, onToggleSwap }) {
                       ))}
                   </ul>
                 ) : (
-                  <p className="mt-3 text-[11px] leading-relaxed text-ink/40">
+                  <p className="mt-3 text-[11px] leading-relaxed text-ink/70">
                     No swaps yet. The ledger stays exactly where it started.
                   </p>
                 )}
               </div>
             </div>
 
-            <p className="mt-4 px-1 text-[10px] leading-relaxed text-mute/60">
+            <p className="mt-4 px-1 text-[10px] leading-relaxed text-mute/85">
               Savings are computed against the unprotected row, not against each other. Applying an
               indoor fix adjusts the same rows — never double-counted.
             </p>

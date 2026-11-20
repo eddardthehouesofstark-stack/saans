@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const PARTICLES = [
   { left: '8%', top: '30%', size: 3, duration: 26, x: [-14, 18], y: [10, -22], delay: 0 },
@@ -14,6 +14,9 @@ const PARTICLES = [
 ];
 
 export default function Particulates() {
+  const reduceMotion = useReducedMotion();
+  if (reduceMotion) return null;
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       {PARTICLES.map((p, i) => (

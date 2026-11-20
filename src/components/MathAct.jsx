@@ -1,4 +1,10 @@
-import { motion, useMotionValueEvent, useScroll, useTransform } from 'framer-motion';
+import {
+  motion,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from 'framer-motion';
 import { lazy, Suspense, useRef, useState } from 'react';
 import AnimatedNumber from './AnimatedNumber';
 import SectionHeading from './SectionHeading';
@@ -34,6 +40,7 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
   const [step, setStep] = useState(0);
+  const reduceMotion = useReducedMotion();
   const rail = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   useMotionValueEvent(scrollYProgress, 'change', (value) => {
@@ -63,7 +70,7 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
               <span className="absolute left-0 top-1 h-full w-px bg-white/10" />
               <motion.span
                 className="absolute left-0 top-1 w-px origin-top bg-amber"
-                style={{ height: '100%', scaleY: rail }}
+                style={{ height: '100%', scaleY: reduceMotion ? 1 : rail }}
               />
 
               <div className="space-y-8">
@@ -83,7 +90,7 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
                             active ? 'bg-amber' : 'bg-white/20'
                           }`}
                         />
-                        <span className="font-grotesk text-[11px] uppercase tracking-[0.2em] text-ink/60">
+                        <span className="font-grotesk text-[11px] uppercase tracking-[0.2em] text-ink/80">
                           {item.label}
                         </span>
                       </div>
@@ -99,14 +106,14 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
                           {item.unit}
                         </span>
                       </div>
-                      <p className="mt-2 max-w-sm text-xs leading-relaxed text-ink/45">{item.note}</p>
+                      <p className="mt-2 max-w-sm text-xs leading-relaxed text-ink/70">{item.note}</p>
                     </motion.div>
                   );
                 })}
               </div>
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/10 pt-4 font-grotesk text-[11px] tracking-[0.06em] text-ink/55">
+            <div className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/10 pt-4 font-grotesk text-[11px] tracking-[0.06em] text-ink/75">
               <span className="text-mute">cigs/day</span>
               <span>=</span>
               <span>PM2.5 ÷ 22</span>
@@ -123,7 +130,7 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
             <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">
               <div>
                 <p className="micro">PM2.5 · last 24 hours</p>
-                <p className="mt-1 font-grotesk text-[11px] text-ink/50">
+                <p className="mt-1 font-grotesk text-[11px] text-ink/70">
                   {demo ? 'Demo series · 285 µg/m³ baseline' : 'Open-Meteo · this location'}
                 </p>
               </div>
@@ -132,7 +139,7 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ background: demo ? '#e8a33d' : '#2dd4a7' }}
                 />
-                <span className="micro text-[9px]">{loading ? 'updating' : demo ? 'demo' : 'live'}</span>
+                <span className="micro text-[10px]">{loading ? 'updating' : demo ? 'demo' : 'live'}</span>
               </span>
             </div>
 

@@ -66,7 +66,7 @@ export default function CommunityAct({ savings }) {
                 </p>
               </div>
               <span
-                className={`flex items-center gap-1.5 border px-2 py-1 font-grotesk text-[8px] uppercase tracking-[0.18em] ${
+                className={`flex items-center gap-1.5 border px-2 py-1 font-grotesk text-[10px] uppercase tracking-[0.18em] ${
                   live
                     ? 'border-green/40 text-green'
                     : 'border-amber/40 text-amber'
@@ -103,7 +103,7 @@ export default function CommunityAct({ savings }) {
                 aria-hidden="true"
               />
             </div>
-            <div className="mt-2 flex justify-between font-grotesk text-[9px] uppercase tracking-[0.16em] text-mute/60">
+            <div className="mt-2 flex justify-between font-grotesk text-[10px] uppercase tracking-[0.16em] text-mute/85">
               <span>Week start · 0</span>
               <span>Target · 200</span>
             </div>
@@ -113,7 +113,7 @@ export default function CommunityAct({ savings }) {
                 <div
                   key={house.id}
                   title={`${house.id} · ${house.cigs} 🚬 this week`}
-                  className="flex h-9 items-center justify-center border border-white/[0.06] font-grotesk text-[8px] tracking-[0.08em] text-ink/50"
+                  className="flex h-9 items-center justify-center border border-white/[0.06] font-grotesk text-[10px] tracking-[0.08em] text-ink/70"
                   style={{
                     background: `rgba(232,163,61,${0.08 + Math.min(0.42, house.cigs / 10)})`,
                   }}
@@ -123,7 +123,7 @@ export default function CommunityAct({ savings }) {
               ))}
               <div
                 title={`You · ${formatCigs(savings)} 🚬 today`}
-                className={`flex h-9 items-center justify-center border font-grotesk text-[8px] uppercase tracking-[0.08em] ${
+                className={`flex h-9 items-center justify-center border font-grotesk text-[10px] uppercase tracking-[0.08em] ${
                   savings > 0.05
                     ? 'border-green/60 bg-green/20 text-green'
                     : 'border-dashed border-amber/50 text-amber'
@@ -134,11 +134,11 @@ export default function CommunityAct({ savings }) {
             </div>
 
             <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-t border-white/[0.07] pt-4">
-              <p className="max-w-md text-[11px] leading-relaxed text-mute/70">
+              <p className="max-w-md text-[11px] leading-relaxed text-mute/85">
                 Each square is one household; brighter means more cigarettes bought back. Your swaps
                 add <span className="text-green">{formatCigs(savings)} 🚬</span> today.
               </p>
-              <p className="font-grotesk text-[10px] leading-relaxed text-mute/50">
+              <p className="font-grotesk text-[10px] leading-relaxed text-mute/85">
                 {isSupabaseConfigured
                   ? 'Rows persist in Supabase. 24 neighbour totals are seeded locally.'
                   : 'Supabase not configured — mock households only. Add keys in src/supabaseConfig.js.'}
@@ -153,13 +153,13 @@ export default function CommunityAct({ savings }) {
                 <span className="text-2xl" aria-hidden="true">
                   {myth.emoji}
                 </span>
-                <h3 className="mt-3 font-grotesk text-sm leading-snug text-ink/45 line-through decoration-alarm/70 decoration-2">
+                <h3 className="mt-3 font-grotesk text-sm leading-snug text-ink/70 line-through decoration-alarm/70 decoration-2">
                   {myth.claim}
                 </h3>
-                <p className="mt-2 text-xs leading-relaxed text-ink/60">{myth.verdict}</p>
+                <p className="mt-2 text-xs leading-relaxed text-ink/80">{myth.verdict}</p>
               </div>
             ))}
-            <p className="px-1 text-[10px] leading-relaxed text-mute/50">
+            <p className="px-1 text-[10px] leading-relaxed text-mute/85">
               Filters, seals and timing do the work. Everything else is decoration.
             </p>
           </div>

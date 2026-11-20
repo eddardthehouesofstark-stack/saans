@@ -2,6 +2,11 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from '../supabaseConfig';
 
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+/** Mirrors the CHECK constraints in supabase/schema.sql. */
+const SWAP_KEYS = new Set(['jog', 'commute', 'park', 'cook']);
+const MAX_CIGARETTES = 5;
+const SESSION_PATTERN = /^[A-Za-z0-9-]{8,64}$/;
+
 let clientPromise = null;
 
 /**
@@ -28,7 +33,7 @@ export function sessionId() {
   } catch {
     /* storage may be blocked */
   }
-  if (!id) {
+  if (!id || !SESSION_PATTERN.test(id)) {
     id =
       typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
@@ -42,16 +47,25 @@ export function sessionId() {
   return id;
 }
 
+/** The shared demo table accepts anonymous writes, so validate before sending. */
+function swapPayload(swapKey, cigarettesSaved) {
+  const id = sessionId();
+  if (!SWAP_KEYS.has(swapKey) || !SESSION_PATTERN.test(id)) return null;
+  const value = Number(cigarettesSaved);
+  if (!Number.isFinite(value) || value < 0) return null;
+  return {
+    session_id: id,
+    swap_key: swapKey,
+    cigarettes_saved: Math.min(MAX_CIGARETTES, value),
+  };
+}
+
 export async function logSwap(swapKey, cigarettesSaved) {
+  const payload = swapPayload(swapKey, cigarettesSaved);
   const client = await getClient();
-  if (!client) return false;
-  const value = Math.max(0, Number(cigarettesSaved) || 0);
+  if (!client || !payload) return false;
   try {
-    const { error } = await client.from('swaps').insert({
-      session_id: sessionId(),
-      swap_key: swapKey,
-      cigarettes_saved: Number(value.toFixed(3)),
-    });
+    const { error } = await client.from('swaps').insert(payload);
     return !error;
   } catch {
     return false;
@@ -59,6 +73,7 @@ export async function logSwap(swapKey, cigarettesSaved) {
 }
 
 export async function removeSwap(swapKey) {
+  if (!SWAP_KEYS.has(swapKey)) return false;
   const client = await getClient();
   if (!client) return false;
   try {

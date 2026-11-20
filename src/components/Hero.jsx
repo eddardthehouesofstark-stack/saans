@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import AnimatedNumber from './AnimatedNumber';
 import Particulates from './Particulates';
@@ -8,8 +8,13 @@ import { pmBand } from '../lib/air';
 export default function Hero({ pm25, budget, demo, place, loading }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
+  const reduceMotion = useReducedMotion();
+  const textY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : -80]);
+  const textOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.75],
+    reduceMotion ? [1, 1] : [1, 0]
+  );
   const band = pmBand(pm25);
 
   return (
@@ -26,7 +31,7 @@ export default function Hero({ pm25, budget, demo, place, loading }) {
         className="relative z-10 mx-auto w-full max-w-[1440px]"
       >
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <span className="micro text-ink/55">Your daily lung budget</span>
+          <span className="micro text-ink/75">Your daily lung budget</span>
           <span className="h-px w-8 bg-white/25" />
           <span className="flex items-center gap-2">
             <span
@@ -37,7 +42,7 @@ export default function Hero({ pm25, budget, demo, place, loading }) {
               {loading ? 'Measuring the air' : `${place} · ${pm25} µg/m³`}
             </span>
             {demo && !loading ? (
-              <span className="border border-amber/40 px-1.5 py-0.5 font-grotesk text-[8px] uppercase tracking-[0.2em] text-amber">
+              <span className="border border-amber/40 px-1.5 py-0.5 font-grotesk text-[10px] uppercase tracking-[0.2em] text-amber">
                 demo data
               </span>
             ) : null}
@@ -60,7 +65,7 @@ export default function Hero({ pm25, budget, demo, place, loading }) {
               <span className="font-display text-[clamp(2rem,4.2vw,3.7rem)] leading-[0.9]">
                 cigarettes
               </span>
-              <span className="font-display text-[clamp(2rem,4.2vw,3.7rem)] leading-[0.9] text-ink/45">
+              <span className="font-display text-[clamp(2rem,4.2vw,3.7rem)] leading-[0.9] text-ink/70">
                 today.
               </span>
             </span>
@@ -107,7 +112,7 @@ export default function Hero({ pm25, budget, demo, place, loading }) {
 
           <div className="mt-10 flex justify-center md:mt-14">
             <a href="#math" className="group flex flex-col items-center gap-2" aria-label="Scroll to the math">
-              <span className="micro text-ink/45 transition-colors group-hover:text-ink/80">
+              <span className="micro text-ink/70 transition-colors group-hover:text-ink/80">
                 Scroll to see your day
               </span>
               <svg
