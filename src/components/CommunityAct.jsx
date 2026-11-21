@@ -1,25 +1,15 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { BLOCK, MOCK_HOUSEHOLDS, MOCK_TOTAL } from '../lib/community';
-import { formatCigs } from '../lib/air';
+import { BLOCK, goalPercent, MOCK_HOUSEHOLDS, MOCK_TOTAL, MYTHS } from '../lib/community';
+import { formatCigs, SAVINGS_EPSILON } from '../lib/air';
 import { isSupabaseConfigured, weekSwapTotal } from '../lib/supabase';
 import SectionHeading from './SectionHeading';
 
-const MYTHS = [
-  {
-    emoji: '🪴',
-    claim: 'Balcony plants purify the air.',
-    verdict:
-      'No measurable PM2.5 effect. A balcony of areca palms moves less air than one open window, and PM2.5 is far too fine to stick to a leaf.',
-  },
-  {
-    emoji: '😷',
-    claim: 'Cloth masks work.',
-    verdict:
-      'They don’t — not against PM2.5. Only a fitted N95/KN95 filters the fine fraction. Cloth is a droplet barrier, not a smog barrier.',
-  },
-];
-
+/**
+ * Block C's weekly bar, the seeded households and the myth check.
+ *
+ * @param {{ savings: number }} props today's savings in cigarettes
+ */
 export default function CommunityAct({ savings }) {
   const [remote, setRemote] = useState(null);
 
@@ -38,7 +28,7 @@ export default function CommunityAct({ savings }) {
   const live = isSupabaseConfigured && remote != null;
   const contributed = live ? remote : savings;
   const total = MOCK_TOTAL + contributed;
-  const pct = Math.min(100, (total / BLOCK.goal) * 100);
+  const pct = goalPercent(total);
 
   return (
     <section id="block" className="relative py-24 md:py-32">
@@ -85,7 +75,7 @@ export default function CommunityAct({ savings }) {
               </span>
               <span className="font-grotesk text-sm text-mute">/ {BLOCK.goal} 🚬</span>
               <span className="ml-auto font-grotesk text-xs tabular-nums text-green">
-                {pct.toFixed(0)}%
+                {pct}%
               </span>
             </div>
 
@@ -124,7 +114,7 @@ export default function CommunityAct({ savings }) {
               <div
                 title={`You · ${formatCigs(savings)} 🚬 today`}
                 className={`flex h-9 items-center justify-center border font-grotesk text-[10px] uppercase tracking-[0.08em] ${
-                  savings > 0.05
+                  savings > SAVINGS_EPSILON
                     ? 'border-green/60 bg-green/20 text-green'
                     : 'border-dashed border-amber/50 text-amber'
                 }`}

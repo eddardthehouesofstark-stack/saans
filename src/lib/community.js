@@ -22,3 +22,30 @@ export const MOCK_HOUSEHOLDS = RAW.map((value, i) => ({
 }));
 
 export const MOCK_TOTAL = MOCK_HOUSEHOLDS.reduce((sum, house) => sum + house.cigs, 0);
+
+/** Two claims the app explicitly debunks, with the reason. */
+export const MYTHS = [
+  {
+    emoji: '🪴',
+    claim: 'Balcony plants purify the air.',
+    verdict:
+      'No measurable PM2.5 effect. A balcony of areca palms moves less air than one open window, and PM2.5 is far too fine to stick to a leaf.',
+  },
+  {
+    emoji: '😷',
+    claim: 'Cloth masks work.',
+    verdict:
+      'They don’t — not against PM2.5. Only a fitted N95/KN95 filters the fine fraction. Cloth is a droplet barrier, not a smog barrier.',
+  },
+];
+
+/**
+ * How full the block's weekly bar is, clamped to 0–100.
+ * @param {number} total cigarettes bought back by the block
+ * @param {number} [goal] weekly target
+ * @returns {number} whole percent
+ */
+export function goalPercent(total, goal = BLOCK.goal) {
+  if (!Number.isFinite(total) || goal <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((total / goal) * 100)));
+}

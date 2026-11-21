@@ -7,12 +7,52 @@
  * own infiltration/exposure factor (metro cabin, exhaust + lid, etc.).
  *
  * Every number the UI shows comes from this file. The LLM only narrates.
+ *
+ * @typedef {{ lat: number, lon: number, label: string }} Location
+ * @typedef {{ label: string, pm25: number }} SeriesPoint
+ * @typedef {{ pm25: number, usAqi: number | null, series: SeriesPoint[] }} AirReading
+ * @typedef {{
+ *   key: string,
+ *   emoji: string,
+ *   name: string,
+ *   window: string,
+ *   hours: number,
+ *   rate: number,
+ *   indoor: boolean,
+ *   protected?: boolean,
+ *   tag: string,
+ *   swap: { title: string, short: string, detail: string, rate: number, exposure: number, tag: string } | null,
+ * }} Activity
+ * @typedef {{
+ *   key: string,
+ *   name: string,
+ *   emoji: string,
+ *   swapped: boolean,
+ *   base: number,
+ *   now: number,
+ *   saved: number,
+ *   swapSaving: number,
+ * }} LedgerRow
+ * @typedef {{
+ *   rows: LedgerRow[],
+ *   baseTotal: number,
+ *   nowTotal: number,
+ *   savings: number,
+ *   budget: number,
+ *   net: number,
+ *   background: number,
+ * }} Ledger
  */
 
 export const CIG_DENOM = 22 * 0.6 * 24; // 316.8
 export const DEFAULT_PM25 = 285;
 export const DEFAULT_LOCATION = { lat: 28.6139, lon: 77.209, label: 'New Delhi, IN' };
+/** Savings at which the displayed day counts as cleared. */
 export const CLEAR_THRESHOLD = 3;
+/** Savings below this read as "nothing changed" in copy and styling. */
+export const SAVINGS_EPSILON = 0.05;
+/** Savings that fill the atmosphere's progress ramp to 100%. */
+export const CLEAR_SCALE = 6;
 
 export const ACTIVITIES = [
   {
@@ -148,11 +188,23 @@ export const HACKS = [
   },
 ];
 
+/**
+ * The daily budget in cigarette-equivalents.
+ * @param {number} pm25 current PM2.5 in µg/m³
+ * @returns {number} cigarettes (never below 0.1 so the UI never shows zero)
+ */
 function cigaretteBudget(pm25) {
   return Math.max(0.1, pm25 / 22);
 }
 
-/** Price of one ledger row. `useSwap` picks the swapped rate and exposure. */
+/**
+ * Price of one ledger row.
+ * @param {Activity} row
+ * @param {number} pm25
+ * @param {boolean} useSwap pick the swapped rate and exposure when true
+ * @param {Record<string, boolean>} [hacks] active indoor fixes
+ * @returns {number} cigarettes for this row
+ */
 function rowPrice(row, pm25, useSwap, hacks = {}) {
   const rate = useSwap ? row.swap.rate : row.rate;
   const exposure = useSwap ? row.swap.exposure : row.indoor ? 0.6 : 1;
@@ -166,6 +218,13 @@ function rowPrice(row, pm25, useSwap, hacks = {}) {
   return value;
 }
 
+/**
+ * Price every activity twice (as-run and with its swap) and total the day.
+ * @param {number} pm25
+ * @param {Record<string, boolean>} [swaps]
+ * @param {Record<string, boolean>} [hacks]
+ * @returns {Ledger}
+ */
 export function computeLedger(pm25, swaps = {}, hacks = {}) {
   const rows = ACTIVITIES.map((row) => {
     const swapped = Boolean(swaps[row.key]) && Boolean(row.swap);
@@ -202,13 +261,25 @@ export function computeLedger(pm25, swaps = {}, hacks = {}) {
   };
 }
 
-/** What toggling one hack changes about today's savings, in cigarettes. */
+/**
+ * What toggling one hack changes about today's savings, in cigarettes.
+ * @param {number} pm25
+ * @param {Record<string, boolean>} swaps
+ * @param {Record<string, boolean>} hacks
+ * @param {string} key
+ * @returns {number} absolute cigarette delta
+ */
 export function hackSavings(pm25, swaps, hacks, key) {
   const on = computeLedger(pm25, swaps, { ...hacks, [key]: true }).savings;
   const off = computeLedger(pm25, swaps, { ...hacks, [key]: false }).savings;
   return Math.abs(on - off);
 }
 
+/**
+ * Human band for a PM2.5 reading.
+ * @param {number} pm25
+ * @returns {{ label: string, color: string }}
+ */
 export function pmBand(pm25) {
   if (pm25 <= 30) return { label: 'Low', color: '#2dd4a7' };
   if (pm25 <= 60) return { label: 'Rising', color: '#e8a33d' };
@@ -216,11 +287,21 @@ export function pmBand(pm25) {
   return { label: 'Severe', color: '#f87171' };
 }
 
+/**
+ * One fixed-decimal number, safe for non-finite input.
+ * @param {number} value
+ * @param {number} [digits]
+ * @returns {string}
+ */
 export function formatCigs(value, digits = 1) {
   if (!Number.isFinite(value)) return '0.0';
   return value.toFixed(digits);
 }
 
+/**
+ * A deterministic-looking 24-hour series for when there is no live reading.
+ * @returns {SeriesPoint[]}
+ */
 export function demoSeries() {
   const now = new Date();
   return Array.from({ length: 24 }, (_, i) => {
@@ -233,6 +314,11 @@ export function demoSeries() {
   });
 }
 
+/**
+ * Ask for the visitor's coordinates, falling back to the default city.
+ * @param {{ timeout?: number }} [options]
+ * @returns {Promise<Location>}
+ */
 export function locate({ timeout = 7000 } = {}) {
   return new Promise((resolve) => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
@@ -252,6 +338,13 @@ export function locate({ timeout = 7000 } = {}) {
   });
 }
 
+/**
+ * Fetch the last 24 hours of PM2.5 from Open-Meteo.
+ * @param {number} lat
+ * @param {number} lon
+ * @returns {Promise<AirReading>} the reading, with a demo series if the API sends none
+ * @throws {Error} on a non-OK response or a payload without PM2.5
+ */
 export async function fetchLiveAir(lat, lon) {
   const url =
     'https://air-quality-api.open-meteo.com/v1/air-quality' +

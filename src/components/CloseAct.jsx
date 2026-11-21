@@ -1,5 +1,5 @@
 import AnimatedNumber from './AnimatedNumber';
-import { formatCigs } from '../lib/air';
+import { formatCigs, SAVINGS_EPSILON } from '../lib/air';
 
 export default function CloseAct({ ledger }) {
   return (
@@ -50,7 +50,9 @@ export default function CloseAct({ ledger }) {
                 <AnimatedNumber value={ledger.net} decimals={1} />
               </p>
               <p className="mt-1 font-grotesk text-[10px] uppercase tracking-[0.18em] text-green">
-                {ledger.savings > 0.05 ? `${formatCigs(ledger.savings)} 🚬 bought back` : 'no swaps yet'}
+                {ledger.savings > SAVINGS_EPSILON
+                  ? `${formatCigs(ledger.savings)} 🚬 bought back`
+                  : 'no swaps yet'}
               </p>
             </div>
           </div>

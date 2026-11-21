@@ -20,8 +20,16 @@ export default [
       ...react.configs.flat.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
+      // Prop contracts are documented with JSDoc typedefs instead.
       'react/prop-types': 'off',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+      eqeqeq: ['error', 'smart'],
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'no-else-return': 'error',
+      curly: ['error', 'multi-line'],
+      'max-depth': ['error', 4],
     },
   },
 ];

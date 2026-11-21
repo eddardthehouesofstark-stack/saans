@@ -3,8 +3,16 @@ import { useEffect, useRef, useState } from 'react';
 import AnimatedNumber from './AnimatedNumber';
 import SectionHeading from './SectionHeading';
 import { reveal } from '../lib/reveal';
-import { CLEAR_THRESHOLD, formatCigs } from '../lib/air';
+import { CLEAR_THRESHOLD, formatCigs, SAVINGS_EPSILON } from '../lib/air';
 
+/**
+ * The swap cards and the live receipt that reprices on every toggle.
+ *
+ * @param {{
+ *   ledger: import('../lib/air').Ledger,
+ *   onToggleSwap: (key: string) => number,
+ * }} props
+ */
 export default function SwapAct({ ledger, onToggleSwap }) {
   const [fly, setFly] = useState(null);
   const flyTimer = useRef(null);
@@ -144,7 +152,11 @@ export default function SwapAct({ ledger, onToggleSwap }) {
                 </span>
               </div>
 
-              <div className="mt-4 flex items-baseline gap-3">
+              <div
+                className="mt-4 flex items-baseline gap-3"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 <AnimatedNumber
                   value={ledger.net}
                   decimals={1}
@@ -153,7 +165,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
                 <span className="text-2xl" aria-hidden="true">
                   🚬
                 </span>
-                {ledger.savings > 0.05 ? (
+                {ledger.savings > SAVINGS_EPSILON ? (
                   <span className="font-grotesk text-sm text-mute/85 line-through">
                     {formatCigs(ledger.budget)}
                   </span>
@@ -161,7 +173,7 @@ export default function SwapAct({ ledger, onToggleSwap }) {
               </div>
 
               <p className="mt-4 font-grotesk text-[11px] uppercase tracking-[0.14em] text-green">
-                {ledger.savings > 0.05
+                {ledger.savings > SAVINGS_EPSILON
                   ? `−${formatCigs(ledger.savings)} 🚬 saved so far`
                   : 'Nothing saved yet'}
               </p>

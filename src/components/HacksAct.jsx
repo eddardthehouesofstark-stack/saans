@@ -2,36 +2,38 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import SectionHeading from './SectionHeading';
 import { reveal } from '../lib/reveal';
-import { formatCigs, HACKS, hackSavings } from '../lib/air';
+import { formatCigs, HACKS, hackSavings, SAVINGS_EPSILON } from '../lib/air';
+import {
+  addFamilyMember,
+  DEFAULT_FAMILY,
+  familyMemberBudget,
+  removeFamilyMember,
+  updateFamilyMember,
+} from '../lib/family';
 
-const DEFAULT_FAMILY = [
-  { id: 'a1', name: 'You', age: 34 },
-  { id: 'a2', name: 'Partner', age: 32 },
-  { id: 'k1', name: 'Kid 1', age: 8 },
-  { id: 'k2', name: 'Kid 2', age: 5 },
-];
+/** Five columns: name, age, budget, saved, remove. */
+const FAMILY_GRID = 'grid-cols-[1fr_48px_64px_58px_16px]';
 
-function weightFor(age) {
-  return age >= 4 && age <= 12 ? 1.8 : 1;
-}
+const ROW_CLASS = `grid ${FAMILY_GRID} items-center gap-2`;
 
+/**
+ * Indoor fixes (each one reprices the ledger) plus a family view that scales
+ * the same routine by each member's dose.
+ *
+ * @param {{
+ *   pm25: number,
+ *   swaps: Record<string, boolean>,
+ *   hacks: Record<string, boolean>,
+ *   ledger: import('../lib/air').Ledger,
+ *   onToggleHack: (key: string) => void,
+ * }} props
+ */
 export default function HacksAct({ pm25, swaps, hacks, ledger, onToggleHack }) {
   const [family, setFamily] = useState(DEFAULT_FAMILY);
 
-  function update(id, patch) {
-    setFamily((prev) => prev.map((member) => (member.id === id ? { ...member, ...patch } : member)));
-  }
-
-  function addMember() {
-    setFamily((prev) => [
-      ...prev,
-      { id: `m${Date.now()}`, name: 'New member', age: 30 },
-    ]);
-  }
-
-  function removeMember(id) {
-    setFamily((prev) => prev.filter((member) => member.id !== id));
-  }
+  const update = (id, patch) => setFamily((prev) => updateFamilyMember(prev, id, patch));
+  const addMember = () => setFamily((prev) => addFamilyMember(prev));
+  const removeMember = (id) => setFamily((prev) => removeFamilyMember(prev, id));
 
   return (
     <section id="hacks" className="relative py-24 md:py-32">
@@ -110,7 +112,9 @@ export default function HacksAct({ pm25, swaps, hacks, ledger, onToggleHack }) {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="micro">Family mode</p>
-                  <h3 className="mt-2 font-display text-2xl leading-tight">The same air, smaller lungs.</h3>
+                  <h3 className="mt-2 font-display text-2xl leading-tight">
+                    The same air, smaller lungs.
+                  </h3>
                 </div>
                 <span className="shrink-0 border border-amber/40 px-2 py-1 font-grotesk text-[10px] uppercase tracking-[0.14em] text-amber">
                   1.8× kids
@@ -123,88 +127,104 @@ export default function HacksAct({ pm25, swaps, hacks, ledger, onToggleHack }) {
               </p>
 
               <div role="table" aria-label="Family budget by member" className="mt-6">
-                <div role="row" className="grid grid-cols-[1fr_48px_64px_58px_16px] items-center gap-2 border-b border-white/10 pb-2">
-                  <span role="columnheader" className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">Name</span>
-                  <span role="columnheader" className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">Age</span>
-                  <span role="columnheader" className="text-right font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">Budget</span>
-                  <span role="columnheader" className="text-right font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">Saved</span>
+                <div
+                  role="row"
+                  className={`${ROW_CLASS} border-b border-white/10 pb-2`}
+                >
+                  <span role="columnheader" className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
+                    Name
+                  </span>
+                  <span role="columnheader" className="font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
+                    Age
+                  </span>
+                  <span role="columnheader" className="text-right font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
+                    Budget
+                  </span>
+                  <span role="columnheader" className="text-right font-grotesk text-[10px] uppercase tracking-[0.18em] text-mute">
+                    Saved
+                  </span>
                   <span aria-hidden="true" />
                 </div>
 
                 <div role="rowgroup" className="divide-y divide-white/[0.06]">
-                <AnimatePresence initial={false}>
-                  {family.map((member) => {
-                    const weight = weightFor(member.age);
-                    const personBudget = ledger.budget * weight;
-                    const personSaved = ledger.savings * weight;
-                    return (
-                      <motion.div
-                        key={member.id}
-                        role="row"
-                        layout
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="grid grid-cols-[1fr_48px_64px_58px_16px] items-center gap-2 py-2.5"
-                      >
-                        <div role="cell" className="min-w-0">
-                          <input
-                            value={member.name}
-                            onChange={(event) => update(member.id, { name: event.target.value })}
-                            aria-label="Family member name"
-                            className="w-full border-b border-transparent bg-transparent py-0.5 font-grotesk text-xs text-ink focus:border-amber focus:outline-none"
-                          />
-                          {weight > 1 ? (
-                            <span className="font-grotesk text-[10px] uppercase tracking-[0.12em] text-amber/80">
-                              child · 1.8×
-                            </span>
-                          ) : (
-                            <span className="font-grotesk text-[10px] uppercase tracking-[0.12em] text-mute/85">
-                              adult · 1.0×
-                            </span>
-                          )}
-                        </div>
-                        <div role="cell">
-                          <input
-                            type="number"
-                            min="1"
-                            max="99"
-                            value={member.age}
-                            onChange={(event) =>
-                              update(member.id, { age: Number(event.target.value) || 0 })
-                            }
-                            aria-label={`${member.name || 'Member'} age`}
-                            className="w-full border-b border-white/10 bg-transparent py-0.5 text-center font-grotesk text-xs tabular-nums text-ink focus:border-amber focus:outline-none"
-                          />
-                        </div>
-                        <span
-                          role="cell"
-                          className="text-right font-grotesk text-xs tabular-nums text-ink/80"
+                  <AnimatePresence initial={false}>
+                    {family.map((member) => {
+                      const { weight, budget: personBudget, saved: personSaved } =
+                        familyMemberBudget(ledger, member);
+
+                      return (
+                        <motion.div
+                          key={member.id}
+                          role="row"
+                          layout
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className={`${ROW_CLASS} py-2.5`}
                         >
-                          {formatCigs(personBudget)}
-                        </span>
-                        <span
-                          role="cell"
-                          className={`text-right font-grotesk text-xs tabular-nums ${
-                            personSaved > 0.05 ? 'text-green' : 'text-mute/85'
-                          }`}
-                        >
-                          {personSaved > 0.05 ? `−${formatCigs(personSaved)}` : '—'}
-                        </span>
-                        <div role="cell">
-                          <button
-                            type="button"
-                            onClick={() => removeMember(member.id)}
-                            aria-label={`Remove ${member.name || 'member'}`}
-                            className="text-mute transition-colors hover:text-alarm"
+                          <div role="cell" className="min-w-0">
+                            <input
+                              value={member.name}
+                              onChange={(event) =>
+                                update(member.id, { name: event.target.value })
+                              }
+                              aria-label="Family member name"
+                              className="w-full border-b border-transparent bg-transparent py-0.5 font-grotesk text-xs text-ink focus:border-amber focus:outline-none"
+                            />
+                            <span
+                              className={`font-grotesk text-[10px] uppercase tracking-[0.12em] ${
+                                weight > 1 ? 'text-amber/80' : 'text-mute/85'
+                              }`}
+                            >
+                              {weight > 1 ? 'child · 1.8×' : 'adult · 1.0×'}
+                            </span>
+                          </div>
+
+                          <div role="cell">
+                            <input
+                              type="number"
+                              inputMode="numeric"
+                              min="1"
+                              max="99"
+                              value={member.age}
+                              onChange={(event) =>
+                                update(member.id, { age: Number(event.target.value) || 0 })
+                              }
+                              aria-label={`${member.name || 'Member'} age`}
+                              className="w-full border-b border-white/10 bg-transparent py-0.5 text-center font-grotesk text-xs tabular-nums text-ink focus:border-amber focus:outline-none"
+                            />
+                          </div>
+
+                          <span
+                            role="cell"
+                            className="text-right font-grotesk text-xs tabular-nums text-ink/80"
                           >
-                            ×
-                          </button>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
+                            {formatCigs(personBudget)}
+                          </span>
+
+                          <span
+                            role="cell"
+                            className={`text-right font-grotesk text-xs tabular-nums ${
+                              personSaved > SAVINGS_EPSILON ? 'text-green' : 'text-mute/85'
+                            }`}
+                          >
+                            {personSaved > SAVINGS_EPSILON ? `−${formatCigs(personSaved)}` : '—'}
+                          </span>
+
+                          <div role="cell">
+                            <button
+                              type="button"
+                              onClick={() => removeMember(member.id)}
+                              aria-label={`Remove ${member.name || 'member'}`}
+                              className="text-mute transition-colors hover:text-alarm"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
                 </div>
               </div>
 

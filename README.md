@@ -25,6 +25,7 @@ npm install
 npm run dev      # http://127.0.0.1:5173
 npm run build    # dist/
 npm run test     # Vitest
+npm run test:coverage  # Vitest + V8 coverage report
 npm run lint     # ESLint
 ```
 
@@ -49,11 +50,14 @@ src/
     air.js          exposure math, activities, swaps, hacks, live data — the single source of numbers
     gemini.js       prompt, context, response parsing, transport
     supabase.js     lazy client, validated writes, weekly total
-    community.js    deterministic neighbour seed data
+    community.js    deterministic neighbour seed data, myths, goal progress
+    family.js       child dose weight and pure family-list helpers
+    sessionKey.js   per-tab API key storage (never localStorage)
+    useFocusTrap.js reusable modal focus trap and Escape handling
     reveal.js       shared viewport-reveal props
   components/
     Hero, MathAct, DayAct, SwapAct, HacksAct, CommunityAct, CloseAct
-    Chat + chat/PlanCard
+    Chat + chat/PlanCard, ChatIntro, ChatKeyForm, ChatComposer, ChatMessage
     Skyline, Atmosphere, Particulates, Grain, Nav, SectionHeading, AnimatedNumber
     charts/PmChart, map/LocationMap   (both lazy-loaded)
   test/setup.js     jsdom shims
@@ -79,11 +83,16 @@ Every displayed number derives from `computeLedger()` in `lib/air.js`; component
 ## Verification
 
 ```bash
-npm run test   # 35+ unit tests: pricing, hacks, parsing, transport, session ids, seed data
-npm run lint   # ESLint flat config, React + hooks rules
-npm run build  # production bundle, CSP injected
+npm run test            # 90+ tests: pricing, hacks, parsing, transport, session ids, seed data, components
+npm run test:coverage   # the same suite with a V8 coverage summary
+npm run lint            # ESLint flat config: React, hooks, eqeqeq, no-console, prefer-const
+npm run build           # production bundle, CSP injected
 ```
 
 ## Deploy
 
-`npm run build` produces a static `dist/`. Host it anywhere that serves files — Cloudflare Pages, Netlify, Vercel, GitHub Pages — with no server and no build-time secrets.
+`npm run build` produces a static `dist/`. It is deployed on Vercel at
+<https://saans-five.vercel.app>; `vercel.json` adds HSTS, `X-Frame-Options: DENY`,
+`X-Content-Type-Options: nosniff`, a `Permissions-Policy` that only allows geolocation for
+the site itself, and a one-year immutable cache for hashed `assets/*`. Push to `main` and
+Vercel rebuilds; any other static host also works, with no server and no build-time secrets.

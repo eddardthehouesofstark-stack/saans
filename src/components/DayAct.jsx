@@ -3,7 +3,7 @@ import { lazy, Suspense } from 'react';
 import AnimatedNumber from './AnimatedNumber';
 import SectionHeading from './SectionHeading';
 import { reveal } from '../lib/reveal';
-import { formatCigs, pmBand } from '../lib/air';
+import { formatCigs, pmBand, SAVINGS_EPSILON } from '../lib/air';
 
 const LocationMap = lazy(() => import('./map/LocationMap'));
 
@@ -154,7 +154,7 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
                       {formatCigs(row.now)}
                       <span className="ml-1 text-[11px] text-mute">🚬</span>
                     </p>
-                    {row.saved > 0.05 ? (
+                    {row.saved > SAVINGS_EPSILON ? (
                       <p className="mt-0.5 font-grotesk text-[10px] text-mute/85">
                         was {formatCigs(row.base)}
                       </p>
@@ -177,7 +177,7 @@ export default function DayAct({ ledger, pm25, place, coords, demo, usAqi }) {
                       className="font-display text-[clamp(2.4rem,4vw,3.2rem)] leading-none tracking-[-0.02em] text-ink"
                     />
                     <span className="text-xl">🚬</span>
-                    {ledger.savings > 0.05 ? (
+                    {ledger.savings > SAVINGS_EPSILON ? (
                       <span className="font-grotesk text-[11px] text-mute/85 line-through">
                         {formatCigs(ledger.budget)}
                       </span>

@@ -11,6 +11,7 @@ import MathAct from './components/MathAct';
 import Nav from './components/Nav';
 import SwapAct from './components/SwapAct';
 import {
+  CLEAR_SCALE,
   computeLedger,
   DEFAULT_LOCATION,
   DEFAULT_PM25,
@@ -91,7 +92,7 @@ export default function App() {
     setHacks((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const clearing = Math.min(1, ledger.savings / 6);
+  const clearing = Math.min(1, ledger.savings / CLEAR_SCALE);
   const appliedSwaps = ledger.rows
     .filter((row) => row.swapped)
     .map((row) => `${row.name} → ${row.swap.short}`);
