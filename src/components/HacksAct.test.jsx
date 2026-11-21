@@ -56,9 +56,7 @@ describe('HacksAct', () => {
   it('removes a family member once the exit animation finishes', async () => {
     setup();
     fireEvent.click(screen.getByRole('button', { name: 'Remove Kid 2' }));
-    await waitFor(() =>
-      expect(screen.getAllByLabelText('Family member name')).toHaveLength(3)
-    );
+    await waitFor(() => expect(screen.getAllByLabelText('Family member name')).toHaveLength(3));
   });
 
   it('reprices a child as an adult when their age changes', () => {

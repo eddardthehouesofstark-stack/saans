@@ -14,6 +14,22 @@ You didn't light anything. It's the air.
 - **Community** — 24 seeded households plus yours, against a 200-cigarette weekly block goal; optionally persisted in Supabase.
 - **Ask Saans** — an optional Gemini co-pilot that proposes actions as JSON cards. The model never computes the budget; the ledger does.
 
+## Impact math
+
+Every physical constant lives in `src/constants/impact.js` with the citation that backs it, and the arithmetic lives in `src/lib/budget.js` as pure functions. Components only format the results.
+
+```
+cigarettes/day = PM2.5 ÷ 22
+row price      = (PM2.5 × breathing rate × hours × exposure) ÷ (22 × 0.6 × 24)
+exposure       = 1 outdoors · 0.6 indoors (infiltration) · or the swap's own factor
+```
+
+- **22 µg/m³ over 24 h = one cigarette** — Berkeley Earth's cigarette equivalence.
+- **Breathing rates** 0.45 (rest), 1.5 (light), 3.0 (heavy) m³/h — ICRP Publication 66.
+- **0.6 indoor/outdoor ratio** for closed windows — Xiang et al., 2021.
+- **1.8× child dose for ages 4–12** — ICRP 66, scaled by body weight.
+- Indoor fixes multiply only the rows they apply to; a swap and a hack never double-count because savings are always measured against the unprotected row.
+
 ## Stack
 
 React 18 · Vite 5 · JavaScript (no TypeScript) · Tailwind CSS · Recharts · react-leaflet / OpenStreetMap · Supabase (optional) · framer-motion. Static build, no server, no auth.
@@ -27,16 +43,18 @@ npm run build    # dist/
 npm run test     # Vitest
 npm run test:coverage  # Vitest + V8 coverage report
 npm run lint     # ESLint
+npm run format   # Prettier write
+npm run format:check  # Prettier check (CI-safe)
 ```
 
 No environment variables are required. The app runs on live data if geolocation is granted, otherwise on the demo series.
 
 ## Configuration
 
-| What | Where | Behaviour when unset |
-| --- | --- | --- |
-| Supabase URL + anon key | `src/supabaseConfig.js` | Community runs on seeded local data, badge reads "demo data" |
-| Gemini API key | Pasted in the Ask Saans panel | Example plan is shown; nothing breaks |
+| What                    | Where                         | Behaviour when unset                                         |
+| ----------------------- | ----------------------------- | ------------------------------------------------------------ |
+| Supabase URL + anon key | `src/supabaseConfig.js`       | Community runs on seeded local data, badge reads "demo data" |
+| Gemini API key          | Pasted in the Ask Saans panel | Example plan is shown; nothing breaks                        |
 
 For Supabase, run `supabase/schema.sql` first. Its policies are deliberately demo-permissive (anonymous insert/read, 24-hour delete window, constrained values) because there is no auth; do not reuse them for private data.
 
@@ -46,10 +64,14 @@ The Gemini key is kept in `sessionStorage` for the current tab, sent only to Goo
 
 ```
 src/
+  constants/
+    impact.js       every physical constant, each with its source citation
   lib/
-    air.js          exposure math, activities, swaps, hacks, live data — the single source of numbers
+    budget.js       pure cigarette-equivalence maths (budget, row price, hacks, totals)
+    air.js          activity and hack definitions, ledger assembly, live Open-Meteo data
+    reading.js      live/demo `AirState` constructors (one shape, one place)
     gemini.js       prompt, context, response parsing, transport
-    supabase.js     lazy client, validated writes, weekly total
+    supabase.js     lazy client, one validated query helper, weekly total
     community.js    deterministic neighbour seed data, myths, goal progress
     family.js       child dose weight and pure family-list helpers
     sessionKey.js   per-tab API key storage (never localStorage)
@@ -57,14 +79,15 @@ src/
     reveal.js       shared viewport-reveal props
   components/
     Hero, MathAct, DayAct, SwapAct, HacksAct, CommunityAct, CloseAct
-    Chat + chat/PlanCard, ChatIntro, ChatKeyForm, ChatComposer, ChatMessage
+    Chat + chat/ (Fab, Header, Intro, KeyForm, Composer, Message, PlanCard, Typing)
+    day/ (AirPanel, LedgerRow) · swap/ (SwapCard, SwapReceipt) · hacks/ (HackCard, FamilyTable)
     Skyline, Atmosphere, Particulates, Grain, Nav, SectionHeading, AnimatedNumber
     charts/PmChart, map/LocationMap   (both lazy-loaded)
   test/setup.js     jsdom shims
 supabase/schema.sql
 ```
 
-Every displayed number derives from `computeLedger()` in `lib/air.js`; components only format and lay it out.
+Every displayed number derives from `computeLedger()` in `lib/air.js`, which is built on the pure functions in `lib/budget.js`; components only format and lay it out.
 
 ## Accessibility
 
@@ -86,6 +109,7 @@ Every displayed number derives from `computeLedger()` in `lib/air.js`; component
 npm run test            # 90+ tests: pricing, hacks, parsing, transport, session ids, seed data, components
 npm run test:coverage   # the same suite with a V8 coverage summary
 npm run lint            # ESLint flat config: React, hooks, eqeqeq, no-console, prefer-const
+npm run format:check    # Prettier formatting gate
 npm run build           # production bundle, CSP injected
 ```
 

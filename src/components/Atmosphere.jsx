@@ -22,7 +22,10 @@ export default function Atmosphere({ clearing = 0 }) {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0 bg-base" aria-hidden="true">
-      <motion.div style={{ opacity: topClean }} className="sky-clean absolute inset-x-0 top-0 h-[88vh]" />
+      <motion.div
+        style={{ opacity: topClean }}
+        className="sky-clean absolute inset-x-0 top-0 h-[88vh]"
+      />
 
       <motion.div style={{ opacity: smog }} className="smog-field absolute inset-0" />
 

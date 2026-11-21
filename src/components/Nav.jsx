@@ -23,7 +23,9 @@ export default function Nav({ pm25, demo, onAsk }) {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${
-        scrolled ? 'border-b border-white/[0.07] bg-base/80 backdrop-blur-md' : 'border-b border-transparent'
+        scrolled
+          ? 'border-b border-white/[0.07] bg-base/80 backdrop-blur-md'
+          : 'border-b border-transparent'
       }`}
     >
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-6 py-4 md:px-10">

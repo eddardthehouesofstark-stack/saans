@@ -2,17 +2,18 @@
  * Family mode — one routine, several pairs of lungs.
  *
  * Children breathe more air per kilogram of body weight, so their row is
- * priced at `CHILD_WEIGHT` times the adult figure. The maths lives here as
- * pure functions so the component stays presentational and the behaviour is
- * testable without a DOM.
+ * priced at `CHILD_DOSE_MULTIPLIER` times the adult figure. The maths lives
+ * here as pure functions so the component stays presentational and the
+ * behaviour is testable without a DOM.
  */
 
+import { CHILD_AGE_MAX, CHILD_AGE_MIN, CHILD_DOSE_MULTIPLIER } from '../constants/impact';
+
 /** Children in this age range are priced at the child dose. */
-export const CHILD_AGE_MIN = 4;
-export const CHILD_AGE_MAX = 12;
+export { CHILD_AGE_MAX, CHILD_AGE_MIN };
 
 /** Dose multiplier for a child relative to an adult, same routine. */
-export const CHILD_WEIGHT = 1.8;
+export const CHILD_WEIGHT = CHILD_DOSE_MULTIPLIER;
 
 /** @typedef {{ id: string, name: string, age: number }} FamilyMember */
 
@@ -29,7 +30,7 @@ let memberSeq = 0;
 /**
  * Dose multiplier for one age.
  * @param {number} age
- * @returns {number} 1.8 for ages 4–12, otherwise 1.
+ * @returns {number} the child multiplier for ages 4–12, otherwise 1
  */
 export function weightForAge(age) {
   return age >= CHILD_AGE_MIN && age <= CHILD_AGE_MAX ? CHILD_WEIGHT : 1;
@@ -42,7 +43,10 @@ export function weightForAge(age) {
  */
 export function addFamilyMember(members, overrides = {}) {
   memberSeq += 1;
-  return [...members, { id: `m${Date.now()}-${memberSeq}`, name: 'New member', age: 30, ...overrides }];
+  return [
+    ...members,
+    { id: `m${Date.now()}-${memberSeq}`, name: 'New member', age: 30, ...overrides },
+  ];
 }
 
 /**

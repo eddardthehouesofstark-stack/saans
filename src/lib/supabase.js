@@ -6,12 +6,14 @@ export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const SWAP_KEYS = new Set(['jog', 'commute', 'park', 'cook']);
 const MAX_CIGARETTES = 5;
 const SESSION_PATTERN = /^[A-Za-z0-9-]{8,64}$/;
+const SESSION_KEY = 'saans.session_id';
 
 let clientPromise = null;
 
 /**
  * Loaded dynamically so the Supabase SDK stays out of the hero's critical path.
  * Returns null when the config file has no keys.
+ * @returns {Promise<import('@supabase/supabase-js').SupabaseClient | null>}
  */
 function getClient() {
   if (!isSupabaseConfigured) return Promise.resolve(null);
@@ -22,8 +24,6 @@ function getClient() {
   }
   return clientPromise;
 }
-
-const SESSION_KEY = 'saans.session_id';
 
 export function sessionId() {
   if (typeof window === 'undefined') return 'server';
@@ -47,6 +47,23 @@ export function sessionId() {
   return id;
 }
 
+/**
+ * Run one query, collapsing "not configured", network failures and PostgREST
+ * errors into the same result so callers never repeat the try/catch.
+ * @param {(client: import('@supabase/supabase-js').SupabaseClient) => Promise<{ data: unknown, error: unknown }>} build
+ * @returns {Promise<{ ok: boolean, data: unknown }>}
+ */
+async function run(build) {
+  const client = await getClient();
+  if (!client) return { ok: false, data: null };
+  try {
+    const { data, error } = await build(client);
+    return { ok: !error, data: data ?? null };
+  } catch {
+    return { ok: false, data: null };
+  }
+}
+
 /** The shared demo table accepts anonymous writes, so validate before sending. */
 function swapPayload(swapKey, cigarettesSaved) {
   const id = sessionId();
@@ -62,30 +79,17 @@ function swapPayload(swapKey, cigarettesSaved) {
 
 export async function logSwap(swapKey, cigarettesSaved) {
   const payload = swapPayload(swapKey, cigarettesSaved);
-  const client = await getClient();
-  if (!client || !payload) return false;
-  try {
-    const { error } = await client.from('swaps').insert(payload);
-    return !error;
-  } catch {
-    return false;
-  }
+  if (!payload) return false;
+  const { ok } = await run((client) => client.from('swaps').insert(payload));
+  return ok;
 }
 
 export async function removeSwap(swapKey) {
   if (!SWAP_KEYS.has(swapKey)) return false;
-  const client = await getClient();
-  if (!client) return false;
-  try {
-    const { error } = await client
-      .from('swaps')
-      .delete()
-      .eq('session_id', sessionId())
-      .eq('swap_key', swapKey);
-    return !error;
-  } catch {
-    return false;
-  }
+  const { ok } = await run((client) =>
+    client.from('swaps').delete().eq('session_id', sessionId()).eq('swap_key', swapKey)
+  );
+  return ok;
 }
 
 export function weekStart() {
@@ -96,17 +100,11 @@ export function weekStart() {
   return d;
 }
 
+/** @returns {Promise<number | null>} cigarettes saved by every household this week */
 export async function weekSwapTotal() {
-  const client = await getClient();
-  if (!client) return null;
-  try {
-    const { data, error } = await client
-      .from('swaps')
-      .select('cigarettes_saved')
-      .gte('created_at', weekStart().toISOString());
-    if (error) return null;
-    return (data ?? []).reduce((sum, row) => sum + (Number(row.cigarettes_saved) || 0), 0);
-  } catch {
-    return null;
-  }
+  const { ok, data } = await run((client) =>
+    client.from('swaps').select('cigarettes_saved').gte('created_at', weekStart().toISOString())
+  );
+  if (!ok || !Array.isArray(data)) return null;
+  return data.reduce((sum, row) => sum + (Number(row.cigarettes_saved) || 0), 0);
 }

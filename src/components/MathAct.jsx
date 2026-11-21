@@ -9,6 +9,7 @@ import { lazy, Suspense, useRef, useState } from 'react';
 import AnimatedNumber from './AnimatedNumber';
 import SectionHeading from './SectionHeading';
 import { reveal } from '../lib/reveal';
+import { CIGARETTE_PM25_UG_M3, DEFAULT_PM25_UG_M3 } from '../constants/impact';
 
 const PmChart = lazy(() => import('./charts/PmChart'));
 
@@ -50,7 +51,7 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
 
   const values = {
     now: pm25,
-    cig: 22,
+    cig: CIGARETTE_PM25_UG_M3,
     budget,
   };
 
@@ -106,7 +107,9 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
                           {item.unit}
                         </span>
                       </div>
-                      <p className="mt-2 max-w-sm text-xs leading-relaxed text-ink/70">{item.note}</p>
+                      <p className="mt-2 max-w-sm text-xs leading-relaxed text-ink/70">
+                        {item.note}
+                      </p>
                     </motion.div>
                   );
                 })}
@@ -116,10 +119,10 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
             <div className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/10 pt-4 font-grotesk text-[11px] tracking-[0.06em] text-ink/75">
               <span className="text-mute">cigs/day</span>
               <span>=</span>
-              <span>PM2.5 ÷ 22</span>
+              <span>PM2.5 ÷ {CIGARETTE_PM25_UG_M3}</span>
               <span>=</span>
               <span>
-                {pm25} ÷ 22
+                {pm25} ÷ {CIGARETTE_PM25_UG_M3}
               </span>
               <span>=</span>
               <span className="text-amber">{budget.toFixed(1)}</span>
@@ -131,7 +134,9 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
               <div>
                 <p className="micro">PM2.5 · last 24 hours</p>
                 <p className="mt-1 font-grotesk text-[11px] text-ink/70">
-                  {demo ? 'Demo series · 285 µg/m³ baseline' : 'Open-Meteo · this location'}
+                  {demo
+                    ? `Demo series · ${DEFAULT_PM25_UG_M3} µg/m³ baseline`
+                    : 'Open-Meteo · this location'}
                 </p>
               </div>
               <span className="flex items-center gap-2">
@@ -139,7 +144,9 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ background: demo ? '#e8a33d' : '#2dd4a7' }}
                 />
-                <span className="micro text-[10px]">{loading ? 'updating' : demo ? 'demo' : 'live'}</span>
+                <span className="micro text-[10px]">
+                  {loading ? 'updating' : demo ? 'demo' : 'live'}
+                </span>
               </span>
             </div>
 
@@ -155,7 +162,7 @@ export default function MathAct({ pm25, budget, series, demo, loading }) {
 
             <div className="flex flex-col gap-3 border-t border-white/[0.07] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="font-grotesk text-[10px] uppercase tracking-[0.16em] text-green">
-                22 µg/m³ reference = 1 cigarette / day
+                {CIGARETTE_PM25_UG_M3} µg/m³ reference = 1 cigarette / day
               </p>
               <p className="font-grotesk text-[10px] text-mute">Berkeley Earth equivalence</p>
             </div>

@@ -38,10 +38,7 @@ describe('Chat', () => {
 
   it('exposes a labelled modal dialog', () => {
     setup();
-    expect(screen.getByRole('dialog', { name: 'Ask Saans' })).toHaveAttribute(
-      'aria-modal',
-      'true'
-    );
+    expect(screen.getByRole('dialog', { name: 'Ask Saans' })).toHaveAttribute('aria-modal', 'true');
     expect(screen.getByRole('log')).toBeInTheDocument();
   });
 

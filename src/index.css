@@ -81,7 +81,12 @@
 
 .sky-clean {
   background:
-    radial-gradient(120% 90% at 50% 0%, rgba(198, 224, 240, 0.55) 0%, rgba(126, 162, 190, 0.22) 38%, rgba(13, 15, 20, 0) 74%),
+    radial-gradient(
+      120% 90% at 50% 0%,
+      rgba(198, 224, 240, 0.55) 0%,
+      rgba(126, 162, 190, 0.22) 38%,
+      rgba(13, 15, 20, 0) 74%
+    ),
     linear-gradient(180deg, rgba(160, 199, 224, 0.3) 0%, rgba(13, 15, 20, 0) 68%);
 }
 
@@ -89,7 +94,12 @@
   background:
     radial-gradient(70% 55% at 18% 22%, rgba(146, 120, 82, 0.4), transparent 70%),
     radial-gradient(75% 60% at 82% 48%, rgba(92, 78, 60, 0.52), transparent 72%),
-    linear-gradient(180deg, rgba(84, 72, 55, 0.16) 0%, rgba(58, 49, 38, 0.52) 52%, rgba(30, 27, 23, 0.24) 100%);
+    linear-gradient(
+      180deg,
+      rgba(84, 72, 55, 0.16) 0%,
+      rgba(58, 49, 38, 0.52) 52%,
+      rgba(30, 27, 23, 0.24) 100%
+    );
 }
 
 .sky-end {
@@ -136,7 +146,9 @@
   height: 14px;
   border-radius: 9999px;
   background: var(--pin, #e8a33d);
-  box-shadow: 0 0 0 4px rgba(242, 239, 233, 0.14), 0 0 22px var(--pin, #e8a33d);
+  box-shadow:
+    0 0 0 4px rgba(242, 239, 233, 0.14),
+    0 0 22px var(--pin, #e8a33d);
 }
 
 .saans-pin::after {

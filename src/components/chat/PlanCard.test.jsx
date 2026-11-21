@@ -28,7 +28,9 @@ describe('PlanCard', () => {
 
   it('flags the fallback plan explicitly', () => {
     render(<PlanCard plan={PLAN} fallback />);
-    expect(screen.getByText(/Example plan · Gemini unavailable or key missing/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Example plan · Gemini unavailable or key missing/)
+    ).toBeInTheDocument();
   });
 
   it('omits figures the model did not supply', () => {

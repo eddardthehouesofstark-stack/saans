@@ -57,14 +57,10 @@ export default function CommunityAct({ savings }) {
               </div>
               <span
                 className={`flex items-center gap-1.5 border px-2 py-1 font-grotesk text-[10px] uppercase tracking-[0.18em] ${
-                  live
-                    ? 'border-green/40 text-green'
-                    : 'border-amber/40 text-amber'
+                  live ? 'border-green/40 text-green' : 'border-amber/40 text-amber'
                 }`}
               >
-                <span
-                  className={`h-1 w-1 rounded-full ${live ? 'bg-green' : 'bg-amber'}`}
-                />
+                <span className={`h-1 w-1 rounded-full ${live ? 'bg-green' : 'bg-amber'}`} />
                 {live ? 'live · supabase' : 'demo data'}
               </span>
             </div>
@@ -74,9 +70,7 @@ export default function CommunityAct({ savings }) {
                 {formatCigs(total, 0)}
               </span>
               <span className="font-grotesk text-sm text-mute">/ {BLOCK.goal} 🚬</span>
-              <span className="ml-auto font-grotesk text-xs tabular-nums text-green">
-                {pct}%
-              </span>
+              <span className="ml-auto font-grotesk text-xs tabular-nums text-green">{pct}%</span>
             </div>
 
             <div className="relative mt-4 h-2 w-full overflow-hidden bg-white/[0.06]">

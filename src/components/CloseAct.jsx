@@ -1,5 +1,6 @@
 import AnimatedNumber from './AnimatedNumber';
 import { formatCigs, SAVINGS_EPSILON } from '../lib/air';
+import { CIGARETTE_PM25_UG_M3 } from '../constants/impact';
 
 export default function CloseAct({ ledger }) {
   return (
@@ -18,7 +19,9 @@ export default function CloseAct({ ledger }) {
 
       <div className="relative mx-auto flex w-full max-w-[1440px] flex-1 flex-col justify-center px-6 md:px-10">
         <div className="flex items-center gap-4">
-          <span className="font-grotesk text-[10px] uppercase tracking-[0.28em] text-amber">06</span>
+          <span className="font-grotesk text-[10px] uppercase tracking-[0.28em] text-amber">
+            06
+          </span>
           <span className="h-px w-8 bg-white/20" />
           <span className="micro">The close</span>
         </div>
@@ -70,7 +73,7 @@ export default function CloseAct({ ledger }) {
           <div className="flex flex-wrap gap-x-8 gap-y-2 font-grotesk text-[10px] uppercase tracking-[0.14em] text-mute/85">
             <span>Built at PromptWars</span>
             <span>Air · Open-Meteo</span>
-            <span>Equivalence · Berkeley Earth 22 µg/m³</span>
+            <span>Equivalence · Berkeley Earth {CIGARETTE_PM25_UG_M3} µg/m³</span>
           </div>
         </div>
         <p className="mt-6 max-w-2xl text-[10px] leading-relaxed text-mute/85">

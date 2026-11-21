@@ -4,17 +4,14 @@ import AnimatedNumber from './AnimatedNumber';
 import Particulates from './Particulates';
 import Skyline from './Skyline';
 import { pmBand } from '../lib/air';
+import { CIGARETTE_PM25_UG_M3 } from '../constants/impact';
 
 export default function Hero({ pm25, budget, demo, place, loading }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const reduceMotion = useReducedMotion();
   const textY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : -80]);
-  const textOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.75],
-    reduceMotion ? [1, 1] : [1, 0]
-  );
+  const textOpacity = useTransform(scrollYProgress, [0, 0.75], reduceMotion ? [1, 1] : [1, 0]);
   const band = pmBand(pm25);
 
   return (
@@ -75,8 +72,7 @@ export default function Hero({ pm25, budget, demo, place, loading }) {
         <div className="mt-8 border-t border-white/10 pt-6 md:mt-10">
           <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
             <p className="max-w-md text-lg leading-snug text-ink/70 md:text-xl">
-              You didn’t touch one.{' '}
-              <span className="text-ink">It’s the air.</span>
+              You didn’t touch one. <span className="text-ink">It’s the air.</span>
             </p>
 
             <dl className="grid grid-cols-3 gap-6 md:gap-10">
@@ -86,14 +82,17 @@ export default function Hero({ pm25, budget, demo, place, loading }) {
                   {pm25}
                   <span className="ml-1 text-[10px] text-mute">µg/m³</span>
                 </dd>
-                <dd className="mt-1 font-grotesk text-[10px] uppercase tracking-[0.16em]" style={{ color: band.color }}>
+                <dd
+                  className="mt-1 font-grotesk text-[10px] uppercase tracking-[0.16em]"
+                  style={{ color: band.color }}
+                >
                   {band.label}
                 </dd>
               </div>
               <div>
                 <dt className="micro">One cigarette</dt>
                 <dd className="mt-2 font-grotesk text-lg text-ink">
-                  22
+                  {CIGARETTE_PM25_UG_M3}
                   <span className="ml-1 text-[10px] text-mute">µg/m³</span>
                 </dd>
                 <dd className="mt-1 font-grotesk text-[10px] uppercase tracking-[0.16em] text-mute">
@@ -111,7 +110,11 @@ export default function Hero({ pm25, budget, demo, place, loading }) {
           </div>
 
           <div className="mt-10 flex justify-center md:mt-14">
-            <a href="#math" className="group flex flex-col items-center gap-2" aria-label="Scroll to the math">
+            <a
+              href="#math"
+              className="group flex flex-col items-center gap-2"
+              aria-label="Scroll to the math"
+            >
               <span className="micro text-ink/70 transition-colors group-hover:text-ink/80">
                 Scroll to see your day
               </span>

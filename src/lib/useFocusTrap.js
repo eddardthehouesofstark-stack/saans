@@ -27,8 +27,7 @@ export function useFocusTrap(containerRef, active, options = {}) {
 
     const container = containerRef.current;
     const restoreTo = document.activeElement;
-    const focusable = () =>
-      Array.from(container?.querySelectorAll(FOCUSABLE) ?? []);
+    const focusable = () => Array.from(container?.querySelectorAll(FOCUSABLE) ?? []);
 
     const onKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -51,10 +50,7 @@ export function useFocusTrap(containerRef, active, options = {}) {
       }
     };
 
-    const timer = setTimeout(
-      () => (initialFocusRef?.current ?? container)?.focus(),
-      delay
-    );
+    const timer = setTimeout(() => (initialFocusRef?.current ?? container)?.focus(), delay);
     window.addEventListener('keydown', onKeyDown);
 
     return () => {

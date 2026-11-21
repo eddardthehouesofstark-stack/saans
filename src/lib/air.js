@@ -44,15 +44,33 @@
  * }} Ledger
  */
 
-export const CIG_DENOM = 22 * 0.6 * 24; // 316.8
-export const DEFAULT_PM25 = 285;
+import { cigaretteBudget, rowCigarettes, sumCigarettes } from './budget';
+import {
+  BREATHING_RATE_COOKING,
+  BREATHING_RATE_HEAVY,
+  BREATHING_RATE_HIIT,
+  BREATHING_RATE_INDOOR,
+  BREATHING_RATE_LIGHT,
+  BREATHING_RATE_METRO,
+  CIGARETTE_DAILY_DOSE,
+  CLEAR_SCALE,
+  DEFAULT_PM25_UG_M3,
+  PM_BAND_THRESHOLDS,
+  SAVINGS_EPSILON,
+  SMOG_CLEAR_THRESHOLD,
+} from '../constants/impact';
+
+/**
+ * Compatibility aliases for the constants module. New code should import
+ * `src/constants/impact.js` directly; these names are kept because existing
+ * callers and tests use them when documenting the formula.
+ */
+export const CIG_DENOM = CIGARETTE_DAILY_DOSE;
+export const DEFAULT_PM25 = DEFAULT_PM25_UG_M3;
+export const CLEAR_THRESHOLD = SMOG_CLEAR_THRESHOLD;
+export { CLEAR_SCALE, SAVINGS_EPSILON };
+
 export const DEFAULT_LOCATION = { lat: 28.6139, lon: 77.209, label: 'New Delhi, IN' };
-/** Savings at which the displayed day counts as cleared. */
-export const CLEAR_THRESHOLD = 3;
-/** Savings below this read as "nothing changed" in copy and styling. */
-export const SAVINGS_EPSILON = 0.05;
-/** Savings that fill the atmosphere's progress ramp to 100%. */
-export const CLEAR_SCALE = 6;
 
 export const ACTIVITIES = [
   {
@@ -61,14 +79,14 @@ export const ACTIVITIES = [
     name: 'Sunrise jog',
     window: '6:30 am · 30 min',
     hours: 0.5,
-    rate: 3.0,
+    rate: BREATHING_RATE_HEAVY,
     indoor: false,
     tag: 'Outdoor · 3.0 m³/h',
     swap: {
       title: 'Swap sunrise jog → indoor HIIT',
       short: 'Indoor HIIT',
       detail: 'Living room, windows shut, 30 minutes.',
-      rate: 2.4,
+      rate: BREATHING_RATE_HIIT,
       exposure: 0.6,
       tag: 'Indoor · filtered',
     },
@@ -79,14 +97,14 @@ export const ACTIVITIES = [
     name: 'E-rickshaw commute',
     window: '8:15 am · 1 h',
     hours: 1,
-    rate: 1.5,
+    rate: BREATHING_RATE_LIGHT,
     indoor: false,
     tag: 'Outdoor · 1.5 m³/h',
     swap: {
       title: 'Swap e-rickshaw → metro, filtered cabin',
       short: 'Metro cabin',
       detail: 'Blue line, one interchange, 1 hour door to door.',
-      rate: 1.2,
+      rate: BREATHING_RATE_METRO,
       exposure: 0.6,
       tag: 'Indoor · filtered cabin',
     },
@@ -97,7 +115,7 @@ export const ACTIVITIES = [
     name: 'Work from home',
     window: '9 am – 6 pm · 9 h',
     hours: 9,
-    rate: 0.6,
+    rate: BREATHING_RATE_INDOOR,
     indoor: true,
     protected: true,
     tag: 'Indoor · protected',
@@ -109,14 +127,14 @@ export const ACTIVITIES = [
     name: "Kids' park time",
     window: '5:30 pm · 30 min',
     hours: 0.5,
-    rate: 1.5,
+    rate: BREATHING_RATE_LIGHT,
     indoor: false,
     tag: 'Outdoor · 1.5 m³/h',
     swap: {
       title: 'Move kids’ park time → indoor play',
       short: 'Indoor play',
       detail: 'Badminton in the corridor, or a board game with the windows shut.',
-      rate: 1.5,
+      rate: BREATHING_RATE_LIGHT,
       exposure: 0.6,
       tag: 'Indoor · filtered',
     },
@@ -127,14 +145,14 @@ export const ACTIVITIES = [
     name: 'Evening cooking',
     window: '7:30 pm · 1 h',
     hours: 1,
-    rate: 0.9,
+    rate: BREATHING_RATE_COOKING,
     indoor: true,
     tag: 'Indoor · unprotected',
     swap: {
       title: 'Cook with exhaust + lid',
       short: 'Exhaust + lid',
       detail: 'Run the chimney, keep lids on, crack one window after.',
-      rate: 0.9,
+      rate: BREATHING_RATE_COOKING,
       exposure: 0.24,
       tag: 'Indoor · ventilated',
     },
@@ -189,36 +207,6 @@ export const HACKS = [
 ];
 
 /**
- * The daily budget in cigarette-equivalents.
- * @param {number} pm25 current PM2.5 in µg/m³
- * @returns {number} cigarettes (never below 0.1 so the UI never shows zero)
- */
-function cigaretteBudget(pm25) {
-  return Math.max(0.1, pm25 / 22);
-}
-
-/**
- * Price of one ledger row.
- * @param {Activity} row
- * @param {number} pm25
- * @param {boolean} useSwap pick the swapped rate and exposure when true
- * @param {Record<string, boolean>} [hacks] active indoor fixes
- * @returns {number} cigarettes for this row
- */
-function rowPrice(row, pm25, useSwap, hacks = {}) {
-  const rate = useSwap ? row.swap.rate : row.rate;
-  const exposure = useSwap ? row.swap.exposure : row.indoor ? 0.6 : 1;
-  let value = (pm25 * rate * row.hours * exposure) / CIG_DENOM;
-
-  for (const hack of HACKS) {
-    if (hacks[hack.key] && hack.applies(row, useSwap)) {
-      value *= hack.factor;
-    }
-  }
-  return value;
-}
-
-/**
  * Price every activity twice (as-run and with its swap) and total the day.
  * @param {number} pm25
  * @param {Record<string, boolean>} [swaps]
@@ -228,11 +216,13 @@ function rowPrice(row, pm25, useSwap, hacks = {}) {
 export function computeLedger(pm25, swaps = {}, hacks = {}) {
   const rows = ACTIVITIES.map((row) => {
     const swapped = Boolean(swaps[row.key]) && Boolean(row.swap);
-    const base = rowPrice(row, pm25, false);
+    const base = rowCigarettes(row, pm25);
     // The row without its swap but with the current hacks, so `swapSaving`
     // answers "what does this swap save?" in both states.
-    const unswapped = rowPrice(row, pm25, false, hacks);
-    const swappedNow = row.swap ? rowPrice(row, pm25, true, hacks) : unswapped;
+    const unswapped = rowCigarettes(row, pm25, { hacks: HACKS, activeHacks: hacks });
+    const swappedNow = row.swap
+      ? rowCigarettes(row, pm25, { useSwap: true, hacks: HACKS, activeHacks: hacks })
+      : unswapped;
     const now = swapped ? swappedNow : unswapped;
     return {
       ...row,
@@ -244,8 +234,8 @@ export function computeLedger(pm25, swaps = {}, hacks = {}) {
     };
   });
 
-  const baseTotal = rows.reduce((sum, row) => sum + row.base, 0);
-  const nowTotal = rows.reduce((sum, row) => sum + row.now, 0);
+  const baseTotal = sumCigarettes(rows, 'base');
+  const nowTotal = sumCigarettes(rows, 'now');
   const savings = Math.max(0, baseTotal - nowTotal);
   const budget = cigaretteBudget(pm25);
   const net = Math.max(0, budget - savings);
@@ -281,9 +271,9 @@ export function hackSavings(pm25, swaps, hacks, key) {
  * @returns {{ label: string, color: string }}
  */
 export function pmBand(pm25) {
-  if (pm25 <= 30) return { label: 'Low', color: '#2dd4a7' };
-  if (pm25 <= 60) return { label: 'Rising', color: '#e8a33d' };
-  if (pm25 <= 120) return { label: 'Unhealthy', color: '#f87171' };
+  if (pm25 <= PM_BAND_THRESHOLDS.low) return { label: 'Low', color: '#2dd4a7' };
+  if (pm25 <= PM_BAND_THRESHOLDS.rising) return { label: 'Rising', color: '#e8a33d' };
+  if (pm25 <= PM_BAND_THRESHOLDS.unhealthy) return { label: 'Unhealthy', color: '#f87171' };
   return { label: 'Severe', color: '#f87171' };
 }
 

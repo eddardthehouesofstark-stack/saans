@@ -5,11 +5,16 @@
  * The key is sent as an `x-goog-api-key` header rather than a query string so
  * it never lands in browser history, proxy logs or referrers.
  */
+import { CIGARETTE_PM25_UG_M3 } from '../constants/impact';
+
 const ENDPOINT =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 export const SYSTEM_INSTRUCTION =
-  'You are Saans, an air-quality co-pilot. Given location, current PM2.5, and the user’s routine, return ONLY JSON: {"actions":[{"action":str,"pm25_avoided":num,"cigarettes_saved":num}],"net_budget":str,"source_note":str}. Use 22 µg/m³ PM2.5 = 1 cigarette/day. Be concrete, local, family-safe.';
+  'You are Saans, an air-quality co-pilot. Given location, current PM2.5, and the user’s routine, ' +
+  'return ONLY JSON: {"actions":[{"action":str,"pm25_avoided":num,"cigarettes_saved":num}],' +
+  '"net_budget":str,"source_note":str}. ' +
+  `Use ${CIGARETTE_PM25_UG_M3} µg/m³ PM2.5 = 1 cigarette/day. Be concrete, local, family-safe.`;
 
 export const FALLBACK_PLAN = {
   actions: [
@@ -30,7 +35,7 @@ export const FALLBACK_PLAN = {
     },
   ],
   net_budget: '11.3',
-  source_note: 'Example plan using 22 µg/m³ = 1 cigarette/day. The ledger prices every action.',
+  source_note: `Example plan using ${CIGARETTE_PM25_UG_M3} µg/m³ = 1 cigarette/day. The ledger prices every action.`,
 };
 
 export function buildContext({ place, pm25, budget, net, appliedSwaps = [], question }) {

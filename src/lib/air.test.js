@@ -116,7 +116,6 @@ describe('formatting and bands', () => {
     expect(pmBand(120).label).toBe('Unhealthy');
     expect(pmBand(121).label).toBe('Severe');
   });
-
 });
 
 describe('demoSeries', () => {
@@ -168,7 +167,10 @@ describe('fetchLiveAir', () => {
   });
 
   it('throws on a non-OK response', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 503 })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 503 }))
+    );
     await expect(fetchLiveAir(0, 0)).rejects.toThrow('Open-Meteo 503');
   });
 });
@@ -184,8 +186,7 @@ describe('locate', () => {
 
   it('uses the device coordinates when granted', async () => {
     setGeolocation({
-      getCurrentPosition: (success) =>
-        success({ coords: { latitude: 19.07, longitude: 72.87 } }),
+      getCurrentPosition: (success) => success({ coords: { latitude: 19.07, longitude: 72.87 } }),
     });
     await expect(locate()).resolves.toEqual({
       lat: 19.07,

@@ -10,28 +10,13 @@ import Hero from './components/Hero';
 import MathAct from './components/MathAct';
 import Nav from './components/Nav';
 import SwapAct from './components/SwapAct';
-import {
-  CLEAR_SCALE,
-  computeLedger,
-  DEFAULT_LOCATION,
-  DEFAULT_PM25,
-  demoSeries,
-  fetchLiveAir,
-  locate,
-} from './lib/air';
+import { CLEAR_SCALE } from './constants/impact';
+import { computeLedger, DEFAULT_LOCATION, fetchLiveAir, locate } from './lib/air';
+import { demoReading, liveReading } from './lib/reading';
 import { logSwap, removeSwap } from './lib/supabase';
 
 export default function App() {
-  const [air, setAir] = useState({
-    pm25: DEFAULT_PM25,
-    series: demoSeries(),
-    demo: true,
-    loading: true,
-    place: DEFAULT_LOCATION.label,
-    coords: { lat: DEFAULT_LOCATION.lat, lon: DEFAULT_LOCATION.lon },
-    usAqi: null,
-  });
-
+  const [air, setAir] = useState(() => demoReading(DEFAULT_LOCATION, { loading: true }));
   const [swaps, setSwaps] = useState({});
   const [hacks, setHacks] = useState({});
   const [chatOpen, setChatOpen] = useState(false);
@@ -43,27 +28,9 @@ export default function App() {
       const location = await locate();
       try {
         const live = await fetchLiveAir(location.lat, location.lon);
-        if (!alive) return;
-        setAir({
-          pm25: live.pm25,
-          series: live.series,
-          demo: false,
-          loading: false,
-          place: location.label,
-          coords: { lat: location.lat, lon: location.lon },
-          usAqi: live.usAqi,
-        });
+        if (alive) setAir(liveReading(live, location));
       } catch {
-        if (!alive) return;
-        setAir({
-          pm25: DEFAULT_PM25,
-          series: demoSeries(),
-          demo: true,
-          loading: false,
-          place: location.label,
-          coords: { lat: location.lat, lon: location.lon },
-          usAqi: null,
-        });
+        if (alive) setAir(demoReading(location));
       }
     })();
 
@@ -72,10 +39,7 @@ export default function App() {
     };
   }, []);
 
-  const ledger = useMemo(
-    () => computeLedger(air.pm25, swaps, hacks),
-    [air.pm25, swaps, hacks]
-  );
+  const ledger = useMemo(() => computeLedger(air.pm25, swaps, hacks), [air.pm25, swaps, hacks]);
 
   const toggleSwap = (key) => {
     const next = { ...swaps, [key]: !swaps[key] };

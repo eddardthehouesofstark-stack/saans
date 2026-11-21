@@ -1,9 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import ChatComposer from './chat/ChatComposer';
+import ChatFab from './chat/ChatFab';
+import ChatHeader from './chat/ChatHeader';
 import ChatIntro from './chat/ChatIntro';
 import ChatKeyForm from './chat/ChatKeyForm';
 import ChatMessage from './chat/ChatMessage';
+import ChatTyping from './chat/ChatTyping';
 import PlanCard from './chat/PlanCard';
 import { FALLBACK_PLAN, buildContext, requestPlan } from '../lib/gemini';
 import { clearLegacyKey, readSessionKey, writeSessionKey } from '../lib/sessionKey';
@@ -80,10 +83,7 @@ export default function Chat({ open, onOpen, onClose, pm25, place, budget, net, 
     if (!apiKey) return;
 
     setInput('');
-    setMessages((prev) => [
-      ...prev,
-      { id: nextMessageId('u'), role: 'user', text: question },
-    ]);
+    setMessages((prev) => [...prev, { id: nextMessageId('u'), role: 'user', text: question }]);
     setLoading(true);
 
     try {
@@ -109,24 +109,7 @@ export default function Chat({ open, onOpen, onClose, pm25, place, budget, net, 
 
   return (
     <>
-      <AnimatePresence>
-        {!open ? (
-          <motion.button
-            key="fab"
-            type="button"
-            onClick={onOpen}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.97 }}
-            className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 bg-amber px-5 py-3.5 font-grotesk text-[11px] font-medium uppercase tracking-[0.2em] text-base shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-base/70" aria-hidden="true" />
-            Ask Saans
-          </motion.button>
-        ) : null}
-      </AnimatePresence>
+      <ChatFab open={open} onOpen={onOpen} />
 
       <AnimatePresence>
         {open ? (
@@ -154,33 +137,7 @@ export default function Chat({ open, onOpen, onClose, pm25, place, budget, net, 
               transition={{ type: 'spring', stiffness: 260, damping: 32 }}
               className="fixed right-0 top-0 z-50 flex h-full w-full max-w-[420px] flex-col border-l border-white/10 bg-[#0f1219] outline-none"
             >
-              <div className="flex items-start justify-between border-b border-white/[0.08] px-5 py-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="h-1.5 w-1.5 rounded-full bg-amber shadow-[0_0_10px_rgba(232,163,61,0.8)]"
-                      aria-hidden="true"
-                    />
-                    <h2
-                      id="saans-chat-title"
-                      className="font-grotesk text-sm uppercase tracking-[0.2em] text-ink"
-                    >
-                      Ask Saans
-                    </h2>
-                  </div>
-                  <p className="mt-1.5 font-grotesk text-[11px] leading-relaxed text-mute">
-                    Priced by the ledger · narrated by Gemini
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="Close chat"
-                  className="px-2 py-1 font-grotesk text-lg leading-none text-mute transition-colors hover:text-ink"
-                >
-                  ×
-                </button>
-              </div>
+              <ChatHeader onClose={onClose} />
 
               <div
                 ref={scrollRef}
@@ -207,24 +164,7 @@ export default function Chat({ open, onOpen, onClose, pm25, place, budget, net, 
                   <ChatMessage key={message.id} message={message} />
                 ))}
 
-                {loading ? (
-                  <div
-                    role="status"
-                    className="flex items-center gap-2 border border-white/[0.08] px-3 py-3"
-                  >
-                    <span className="micro text-[10px]">Reading the air</span>
-                    <span className="flex gap-1" aria-hidden="true">
-                      {[0, 1, 2].map((dot) => (
-                        <motion.span
-                          key={dot}
-                          className="h-1 w-1 rounded-full bg-amber"
-                          animate={{ opacity: [0.2, 1, 0.2] }}
-                          transition={{ duration: 1.1, repeat: Infinity, delay: dot * 0.18 }}
-                        />
-                      ))}
-                    </span>
-                  </div>
-                ) : null}
+                {loading ? <ChatTyping /> : null}
 
                 {apiKey ? (
                   <button

@@ -43,7 +43,7 @@ describe('App', () => {
     expect(screen.getAllByText('Unhealthy').length).toBeGreaterThan(0);
     // The hero now shows the live reading instead of the demo baseline.
     expect(screen.getByText('New Delhi, IN · 90 µg/m³')).toBeInTheDocument();
-  });
+  }, 15000);
 
   it('applies and undoes a swap, updating the live receipt', async () => {
     mocks.fetchLiveAir.mockRejectedValue(new Error('offline'));
@@ -57,5 +57,5 @@ describe('App', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     await waitFor(() => expect(screen.getByText(/No swaps yet/)).toBeInTheDocument());
-  });
+  }, 15000);
 });

@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { CIGARETTE_PM25_UG_M3 } from '../../constants/impact';
 
 function ChartTip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -48,7 +49,7 @@ export default function PmChart({ series = [] }) {
           />
           <Tooltip content={<ChartTip />} cursor={{ stroke: 'rgba(242,239,233,0.2)' }} />
           <ReferenceLine
-            y={22}
+            y={CIGARETTE_PM25_UG_M3}
             stroke="#2dd4a7"
             strokeDasharray="4 4"
             strokeOpacity={0.8}
